@@ -1,0 +1,134 @@
+/* 
+  Localizable.strings (English)
+  PlateShareBD
+*/
+
+// MARK: - Welcome
+"welcome.title" = "PlateShare BD";
+"welcome.subtitle_bn" = "খাবার ভাগ করুন, ভালোবাসা ছড়িয়ে দিন";
+"welcome.subtitle_en" = "Share food, spread love";
+"welcome.continue_email" = "Continue with Email";
+"welcome.terms" = "By continuing, you agree to our Terms of Service";
+"welcome.feature.share" = "Share Surplus Food";
+"welcome.feature.share.sub" = "From weddings, events & daily meals";
+"welcome.feature.nearby" = "Find Nearby";
+"welcome.feature.nearby.sub" = "Discover food being shared in your area";
+"welcome.feature.connect" = "Connect Directly";
+"welcome.feature.connect.sub" = "Message donors and arrange pickup";
+
+// MARK: - Auth
+"auth.create_account" = "Create Account";
+"auth.welcome_back" = "Welcome Back";
+"auth.create_account_bn" = "অ্যাকাউন্ট তৈরি করুন";
+"auth.welcome_back_bn" = "আবার স্বাগতম";
+"auth.email_placeholder" = "Email address";
+"auth.password_placeholder" = "Password (min 6 characters)";
+"auth.sign_in" = "Sign In";
+"auth.toggle_signup" = "Don't have an account? Sign Up";
+"auth.toggle_signin" = "Already have an account? Sign In";
+"auth.error.signin" = "Sign in failed. Please try again.";
+"auth.error.register" = "Registration failed. Please try again.";
+"auth.error.general" = "Authentication error. Please try again.";
+"auth.error.signout" = "Could not sign out. Please try again.";
+
+// MARK: - Profile Setup
+"profile_setup.title" = "Set Up Your Profile";
+"profile_setup.title_bn" = "আপনার প্রোফাইল সেট আপ করুন";
+"profile_setup.name_label" = "Your Name";
+"profile_setup.area_label" = "Your Area / মহল্লা";
+"profile_setup.name_placeholder" = "Enter your name";
+"profile_setup.area_placeholder" = "Enter your area";
+"profile_setup.complete" = "Complete Profile";
+
+// MARK: - Tab Bar
+"tab.feed" = "Feed";
+"tab.map" = "Map";
+"tab.share" = "Share";
+"tab.messages" = "Messages";
+"tab.profile" = "Profile";
+
+// MARK: - Feed
+"feed.title" = "PlateShare 🍽️";
+"feed.all" = "All";
+"feed.empty.title" = "No food available nearby";
+"feed.empty.subtitle" = "Be the first to share! Tap + to create a listing.";
+
+// MARK: - Listing Card
+"listing.no_photo" = "No photo";
+"listing.halal" = "Halal";
+"listing.taken" = "Taken";
+"listing.expired" = "Expired";
+"listing.description" = "Description";
+"listing.shared_by" = "Shared by";
+"listing.verified_donor" = "Verified Donor";
+"listing.pickup_location" = "Pickup Location";
+"listing.no_photo_available" = "No photo available";
+"listing.message_donor" = "Message Donor 💬";
+"listing.active" = "Active";
+
+// MARK: - Create Listing
+"create.title" = "Share Food";
+"create.photos" = "Food Photos";
+"create.add_photo" = "Add Photo";
+"create.food_title" = "Food Title *";
+"create.category" = "Category";
+"create.description" = "Description (optional)";
+"create.quantity" = "Quantity *";
+"create.pickup_address" = "Pickup Address *";
+"create.halal" = "Halal";
+"create.hours" = "Available for (hours)";
+"create.title_placeholder" = "e.g., Wedding Biryani - Fresh & Hot";
+"create.quantity_placeholder" = "e.g., Serves 10 people";
+"create.address_placeholder" = "e.g., Dhanmondi 27, Block A";
+"create.submit" = "Share Food 🍽️";
+"create.success_title" = "Food Shared! 🎉";
+"create.success_message" = "Your food listing is now live! People nearby can see it and message you for pickup.";
+"create.error.not_logged_in" = "You must be logged in to create a listing.";
+"create.error.missing_fields" = "Please fill in all required fields.";
+
+// MARK: - Map
+"map.title" = "Nearby Food 📍";
+
+// MARK: - Messages
+"messages.title" = "Messages 💬";
+"messages.empty.title" = "No messages yet";
+"messages.empty.subtitle" = "Message a food donor to arrange pickup!";
+"messages.input_placeholder" = "Type a message...";
+"messages.error.send" = "Failed to send message.";
+
+// MARK: - Profile
+"profile.title" = "Profile";
+"profile.loading" = "Loading...";
+"profile.donations" = "Donations";
+"profile.active" = "Active";
+"profile.rating" = "Rating";
+"profile.my_listings" = "My Listings";
+"profile.no_listings" = "No listings yet";
+"profile.language" = "Language / ভাষা";
+"profile.notifications" = "Notifications";
+"profile.notifications_on" = "On";
+"profile.privacy" = "Privacy";
+"profile.sign_out" = "Sign Out";
+"profile.mark_taken" = "Mark as Taken";
+"profile.delete" = "Delete";
+"profile.error.load" = "Failed to load profile.";
+"profile.error.delete" = "Failed to delete listing.";
+"profile.error.update" = "Failed to update listing.";
+
+// MARK: - Rating
+"rating.title" = "Rate Donor";
+"rating.subtitle" = "How was your experience?";
+"rating.comment_placeholder" = "Leave a comment (optional)";
+"rating.submit" = "Submit Rating";
+"rating.thanks" = "Thanks for your feedback!";
+
+// MARK: - Notifications
+"notification.expiring.title" = "Food Expiring Soon! ⏰";
+"notification.expiring.body" = "%@ is about to expire. Check if someone wants to pick it up!";
+
+// MARK: - Common
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.error" = "Something went wrong. Please try again.";
+"common.loading" = "Loading...";
+"common.verifying" = "Verifying...";
