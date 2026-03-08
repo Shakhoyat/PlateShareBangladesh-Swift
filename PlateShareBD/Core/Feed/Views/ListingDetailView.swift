@@ -11,9 +11,10 @@ struct ListingDetailView: View {
     let listing: FoodListing
     let currentUserId: String?
     @State private var isShowingChat = false
+    @State private var isShowingRating = false
     @State private var conversation: PSConversation?
     @State private var isLoadingChat = false
-    @Environment(\.\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss
 
     var isOwnListing: Bool {
         currentUserId == listing.donorId
@@ -168,6 +169,15 @@ struct ListingDetailView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
                 .background(.ultraThinMaterial)
+            } else if !isOwnListing && !listing.isAvailable {
+                // Rate Donor button (listing already taken)
+                PSButton("Rate Donor ⭐") {
+                    isShowingRating = true
+                }
+                .accessibilityLabel("Rate \(listing.donorName)")
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(.ultraThinMaterial)
             }
         }
         .sheet(isPresented: $isShowingChat) {
@@ -175,6 +185,21 @@ struct ListingDetailView: View {
                 NavigationStack {
                     ChatView(conversation: conversation, otherUserName: listing.donorName)
                 }
+            }
+        }
+        .sheet(isPresented: $isShowingRating) {
+            if let uid = currentUserId {
+                NavigationStack {
+                    RatingView(
+                        donorId: listing.donorId,
+                        donorName: listing.donorName,
+                        listingId: listing.id,
+                        currentUserId: uid
+                    )
+                    .navigationTitle("Rate Donor")
+                    .navigationBarTitleDisplayMode(.inline)
+                }
+                .presentationDetents([.medium])
             }
         }
     }
