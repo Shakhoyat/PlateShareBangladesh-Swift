@@ -24,8 +24,7 @@
 
 | Feature | Category | Complexity | Week |
 |---------|----------|------------|------|
-| Firebase Phone Auth (OTP) | Auth | High | 1 |
-| Google Sign-In | Auth | Medium | 1 |
+| Firebase Email/Password Auth | Auth | Low | 1 |
 | User Profile Creation | Auth | Low | 1 |
 | Food Listing Creation (photo + details) | Core | High | 1 |
 | Home Feed (real-time listings) | Core | High | 1 |
@@ -47,13 +46,13 @@
 The MVP must prove the core loop: **Post food → Discover nearby food → Message donor → Arrange pickup.**
 
 **MVP Must-Haves (non-negotiable):**
-- Phone number authentication with OTP (Firebase Phone Auth)
-- User profile: name, area/mohalla, profile photo
+- Email/Password authentication (Firebase Auth — free Spark plan)
+- User profile: name, email, area/mohalla, profile photo
 - Create food listing: title, photo, category, quantity, expiry time, pickup location
 - Real-time listing feed (home screen)
 - Map view showing nearby listings within selectable radius
 - In-app text messaging between donor and recipient
-- Basic trust indicators: verified phone badge, user rating display
+- Basic trust indicators: verified email badge, user rating display
 
 **MVP Should-Haves (include if time allows):**
 - Push notifications for new nearby listings
@@ -99,8 +98,7 @@ PlateShareBD/
 │   │   ├── Authentication/
 │   │   │   ├── Views/
 │   │   │   │   ├── WelcomeView.swift
-│   │   │   │   ├── PhoneAuthView.swift
-│   │   │   │   ├── OTPVerificationView.swift
+│   │   │   │   ├── EmailAuthView.swift
 │   │   │   │   └── ProfileSetupView.swift
 │   │   │   ├── ViewModels/
 │   │   │   │   ├── AuthViewModel.swift
@@ -246,7 +244,7 @@ PlateShareBD/
 struct PSUser: Codable, Identifiable {
     let id: String                    // Firebase UID
     var displayName: String
-    var phoneNumber: String
+    var email: String
     var area: String                  // mohalla/para
     var profileImageURL: String?
     var isVerified: Bool
@@ -406,7 +404,6 @@ When Xcode asks which products to add, check **only** these:
 ✅ FirebaseFirestore
 ✅ FirebaseStorage
 ✅ FirebaseMessaging
-✅ FirebaseDatabaseSwift    ← for Realtime Database (messaging)
 ```
 
 Do NOT add unused libraries. Each one adds build time and app size.
@@ -513,26 +510,18 @@ struct ContentView: View {
 
 ---
 
-### 3.4 Firebase Phone Authentication (Primary Auth Flow)
+### 3.4 Firebase Email/Password Authentication (Primary Auth Flow — Free Spark Plan)
 
-#### Step 1: Enable Phone Auth in Firebase Console
+#### Step 1: Enable Email/Password Auth in Firebase Console
 
 1. Firebase Console → Your Project → **Authentication** → **Sign-in method**
-2. Click on **Phone** in the list
+2. Click on **Email/Password** in the list
 3. Toggle **Enable** → On
 4. Click **Save**
 
-#### Step 2: Configure URL Scheme for OTP (Critical)
+> **Why Email/Password instead of Phone OTP?** Firebase Phone Auth requires the Blaze (pay-as-you-go) billing plan. Email/Password auth works on the free Spark plan with no billing account required.
 
-1. Open `GoogleService-Info.plist` in a text editor (or Xcode)
-2. Find the `REVERSED_CLIENT_ID` value. It looks like: `com.googleusercontent.apps.XXXXX-YYYYYYY`
-3. In Xcode: Project → Target → **Info** tab → **URL Types**
-4. Click **+** to add a new URL Type
-5. **Identifier:** `GoogleSignIn`
-6. **URL Schemes:** Paste your `REVERSED_CLIENT_ID` value
-7. This is required for Google Sign-In callback. Phone OTP works without this, but add it now.
-
-#### Step 3: AuthService Implementation
+#### Step 2: AuthService Implementation (Email/Password)
 
 ```swift
 // Services/Firebase/AuthService.swift
@@ -540,11 +529,11 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-// Typed error enum — never expose raw Firebase errors to ViewModels
 enum AuthError: LocalizedError {
-    case invalidPhoneNumber
-    case invalidOTP
-    case otpExpired
+    case invalidEmail
+    case weakPassword
+    case emailAlreadyInUse
+    case wrongPassword
     case tooManyRequests
     case networkError
     case userNotFound
@@ -553,12 +542,13 @@ enum AuthError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .invalidPhoneNumber: return "Please enter a valid Bangladeshi phone number."
-        case .invalidOTP: return "The verification code is incorrect."
-        case .otpExpired: return "Code expired. Please request a new one."
+        case .invalidEmail: return "Please enter a valid email address."
+        case .weakPassword: return "Password must be at least 6 characters."
+        case .emailAlreadyInUse: return "An account with this email already exists. Try signing in."
+        case .wrongPassword: return "Incorrect password. Please try again."
         case .tooManyRequests: return "Too many attempts. Please wait before trying again."
         case .networkError: return "No internet connection. Please check your network."
-        case .userNotFound: return "Account not found."
+        case .userNotFound: return "No account found with this email."
         case .profileSetupRequired: return "Please complete your profile."
         case .unknown(let msg): return msg
         }
@@ -571,58 +561,40 @@ final class AuthService {
     private init() {}
 
     private let db = Firestore.firestore()
-    private var verificationID: String?
 
-    // STEP 1: Send OTP to phone number
-    // phoneNumber MUST be in E.164 format: "+8801712345678"
-    func sendOTP(to phoneNumber: String) async throws {
-        // Format check
-        guard phoneNumber.hasPrefix("+880"), phoneNumber.count == 14 else {
-            throw AuthError.invalidPhoneNumber
-        }
-
+    // Register a new user with email and password
+    func register(email: String, password: String) async throws -> AuthDataResult {
         do {
-            let verificationID = try await PhoneAuthProvider.provider()
-                .verifyPhoneNumber(phoneNumber, uiDelegate: nil)
-            self.verificationID = verificationID
+            return try await Auth.auth().createUser(withEmail: email, password: password)
         } catch let error as NSError {
             throw mapFirebaseAuthError(error)
         }
     }
 
-    // STEP 2: Verify OTP code entered by user
-    func verifyOTP(_ code: String) async throws -> AuthDataResult {
-        guard let verificationID = verificationID else {
-            throw AuthError.invalidOTP
-        }
-
-        let credential = PhoneAuthProvider.provider().credential(
-            withVerificationID: verificationID,
-            verificationCode: code
-        )
-
+    // Sign in with email and password
+    func signIn(email: String, password: String) async throws -> AuthDataResult {
         do {
-            return try await Auth.auth().signIn(with: credential)
+            return try await Auth.auth().signIn(withEmail: email, password: password)
         } catch let error as NSError {
             throw mapFirebaseAuthError(error)
         }
     }
 
-    // STEP 3: Check if user profile exists in Firestore
+    // Check if user profile exists in Firestore
     func checkUserProfile(uid: String) async throws -> Bool {
-        let doc = try await db.collection("users").document(uid).getDocument()
+        let doc = try await db.collection(FirestoreKeys.Collections.users).document(uid).getDocument()
         return doc.exists
     }
 
-    // STEP 4: Create user profile in Firestore
+    // Create user profile in Firestore
     func createUserProfile(_ user: PSUser) async throws {
         let data = try Firestore.Encoder().encode(user)
-        try await db.collection("users").document(user.id).setData(data)
+        try await db.collection(FirestoreKeys.Collections.users).document(user.id).setData(data)
     }
 
     // Fetch user profile
     func fetchUserProfile(uid: String) async throws -> PSUser {
-        let doc = try await db.collection("users").document(uid).getDocument()
+        let doc = try await db.collection(FirestoreKeys.Collections.users).document(uid).getDocument()
         guard let user = try? doc.data(as: PSUser.self) else {
             throw AuthError.userNotFound
         }
@@ -634,27 +606,29 @@ final class AuthService {
         try Auth.auth().signOut()
     }
 
-    // Current user
     var currentUser: FirebaseAuth.User? {
         Auth.auth().currentUser
     }
 
-    // Map Firebase error codes to our typed errors
     private func mapFirebaseAuthError(_ error: NSError) -> AuthError {
-        let code = AuthErrorCode(_nsError: error)
-        switch code.code {
-        case .invalidPhoneNumber: return .invalidPhoneNumber
-        case .invalidVerificationCode: return .invalidOTP
-        case .sessionExpired: return .otpExpired
+        guard let code = AuthErrorCode(rawValue: error.code) else {
+            return .unknown(error.localizedDescription)
+        }
+        switch code {
+        case .invalidEmail: return .invalidEmail
+        case .weakPassword: return .weakPassword
+        case .emailAlreadyInUse: return .emailAlreadyInUse
+        case .wrongPassword: return .wrongPassword
         case .tooManyRequests: return .tooManyRequests
         case .networkError: return .networkError
+        case .userNotFound: return .userNotFound
         default: return .unknown(error.localizedDescription)
         }
     }
 }
 ```
 
-#### Step 4: AuthViewModel
+#### Step 3: AuthViewModel (Email/Password)
 
 ```swift
 // Core/Authentication/ViewModels/AuthViewModel.swift
@@ -675,7 +649,6 @@ final class AuthViewModel: ObservableObject {
     @Published var currentUser: PSUser?
     @Published var errorMessage: String?
     @Published var isLoading = false
-    @Published var otpSent = false
 
     private let authService = AuthService.shared
     private var authStateListener: AuthStateDidChangeListenerHandle?
@@ -684,7 +657,6 @@ final class AuthViewModel: ObservableObject {
         listenToAuthState()
     }
 
-    // Listen to Firebase auth state changes persistently
     private func listenToAuthState() {
         authStateListener = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             Task { @MainActor in
@@ -714,34 +686,28 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    // Format phone number to E.164 before sending
-    func sendOTP(rawPhone: String) async {
+    func signIn(email: String, password: String) async {
         isLoading = true
         errorMessage = nil
-
-        // Convert "01712345678" → "+8801712345678"
-        let formatted = formatBangladeshiPhone(rawPhone)
-
         do {
-            try await authService.sendOTP(to: formatted)
-            otpSent = true
+            _ = try await authService.signIn(email: email, password: password)
         } catch let error as AuthError {
             errorMessage = error.errorDescription
         } catch {
-            errorMessage = "An unexpected error occurred."
+            errorMessage = "Sign in failed. Please try again."
         }
         isLoading = false
     }
 
-    func verifyOTP(code: String) async {
+    func register(email: String, password: String) async {
         isLoading = true
         errorMessage = nil
-
         do {
-            _ = try await authService.verifyOTP(code)
-            // Auth state listener will fire automatically and handle the rest
+            _ = try await authService.register(email: email, password: password)
         } catch let error as AuthError {
             errorMessage = error.errorDescription
+        } catch {
+            errorMessage = "Registration failed. Please try again."
         }
         isLoading = false
     }
@@ -754,112 +720,103 @@ final class AuthViewModel: ObservableObject {
         }
     }
 
-    private func formatBangladeshiPhone(_ phone: String) -> String {
-        let digits = phone.filter { $0.isNumber }
-        if digits.hasPrefix("880") { return "+\(digits)" }
-        if digits.hasPrefix("0") { return "+88\(digits)" }
-        return "+880\(digits)"
+    deinit {
+        if let listener = authStateListener {
+            Auth.auth().removeStateDidChangeListener(listener)
+        }
     }
 }
 ```
 
-#### Step 5: PhoneAuthView Implementation
+#### Step 4: EmailAuthView Implementation
 
 ```swift
-// Core/Authentication/Views/PhoneAuthView.swift
+// Core/Authentication/Views/EmailAuthView.swift
 import SwiftUI
 
-struct PhoneAuthView: View {
+struct EmailAuthView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
-    @State private var phoneNumber = ""
-    @State private var otpCode = ""
+    @State private var email = ""
+    @State private var password = ""
+    @State private var isSignUp = false
     @FocusState private var focusedField: Field?
 
-    enum Field { case phone, otp }
+    enum Field { case email, password }
 
     var body: some View {
-        VStack(spacing: 24) {
-            // Logo + Title
-            VStack(spacing: 8) {
-                Image("AppLogo")
-                    .resizable()
-                    .frame(width: 80, height: 80)
-                Text("PlateShare BD")
-                    .font(.largeTitle.bold())
-                    .foregroundColor(.green)
-                Text("খাবার ভাগ করুন, ভালোবাসা ছড়িয়ে দিন")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-            }
+        ScrollView {
+            VStack(spacing: 28) {
+                // Header
+                VStack(spacing: 8) {
+                    Image(systemName: "envelope.badge.shield.half.filled")
+                        .font(.system(size: 50))
+                        .foregroundStyle(.psGreen)
 
-            // Phone Input
-            if !authViewModel.otpSent {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Phone Number")
-                        .font(.caption)
+                    Text(isSignUp ? "Create Account" : "Welcome Back")
+                        .font(.title2.bold())
+
+                    Text(isSignUp ? "অ্যাকাউন্ট তৈরি করুন" : "আবার স্বাগতম")
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
-                    HStack {
-                        Text("+880")
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 10)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(8)
-                        TextField("01XXXXXXXXX", text: $phoneNumber)
-                            .keyboardType(.phonePad)
-                            .focused($focusedField, equals: .phone)
-                            .padding(10)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(8)
+                }
+                .padding(.top, 20)
+
+                // Email & Password
+                VStack(spacing: 14) {
+                    PSTextField(placeholder: "Email address", text: $email,
+                                keyboardType: .emailAddress, icon: "envelope.fill")
+                        .focused($focusedField, equals: .email)
+                        .textContentType(.emailAddress)
+                        .autocapitalization(.none)
+
+                    PSTextField(placeholder: "Password (min 6 characters)", text: $password,
+                                icon: "lock.fill", isSecure: true)
+                        .focused($focusedField, equals: .password)
+                        .textContentType(isSignUp ? .newPassword : .password)
+                }
+
+                // Submit
+                PSButton(isSignUp ? "Create Account" : "Sign In",
+                         isLoading: authViewModel.isLoading) {
+                    Task {
+                        if isSignUp {
+                            await authViewModel.register(email: email, password: password)
+                        } else {
+                            await authViewModel.signIn(email: email, password: password)
+                        }
                     }
                 }
+                .disabled(email.isEmpty || password.count < 6)
 
-                PSButton("Send Verification Code", isLoading: authViewModel.isLoading) {
-                    Task { await authViewModel.sendOTP(rawPhone: phoneNumber) }
-                }
-                .disabled(phoneNumber.count < 10)
-            }
-
-            // OTP Input (shown after OTP sent)
-            if authViewModel.otpSent {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Enter 6-digit code sent to +880\(phoneNumber)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    TextField("000000", text: $otpCode)
-                        .keyboardType(.numberPad)
-                        .focused($focusedField, equals: .otp)
-                        .font(.title2.monospacedDigit())
-                        .multilineTextAlignment(.center)
-                        .padding(12)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                        .onChange(of: otpCode) { _, new in
-                            if new.count == 6 {
-                                Task { await authViewModel.verifyOTP(code: new) }
-                            }
-                        }
+                // Toggle sign-in / sign-up
+                Button {
+                    withAnimation { isSignUp.toggle() }
+                } label: {
+                    Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
+                        .font(.footnote.weight(.medium))
+                        .foregroundColor(.psGreen)
                 }
 
-                Button("Resend Code") {
-                    otpCode = ""
-                    Task { await authViewModel.sendOTP(rawPhone: phoneNumber) }
+                // Error
+                if let error = authViewModel.errorMessage {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.red)
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+                    .padding(12)
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(8)
                 }
-                .font(.footnote)
-                .foregroundColor(.green)
-            }
 
-            // Error Display
-            if let error = authViewModel.errorMessage {
-                Text(error)
-                    .font(.caption)
-                    .foregroundColor(.red)
-                    .padding(.horizontal)
-                    .multilineTextAlignment(.center)
+                Spacer()
             }
+            .padding(24)
         }
-        .padding(24)
-        .onAppear { focusedField = .phone }
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear { focusedField = .email }
     }
 }
 ```
@@ -877,7 +834,7 @@ Firestore Database
 │   └── {userId}/                       (document)
 │       ├── id: String
 │       ├── displayName: String
-│       ├── phoneNumber: String
+│       ├── email: String
 │       ├── area: String
 │       ├── profileImageURL: String?
 │       ├── isVerified: Bool
@@ -1370,7 +1327,7 @@ final class StorageService {
 | Mistake | Consequence | Fix |
 |---------|-------------|-----|
 | `GoogleService-Info.plist` in wrong folder | `FirebaseApp.configure()` silently fails; auth never works | Place at root of app target, not in subfolder |
-| Bundle ID mismatch between Xcode and Firebase Console | OTP never sends; sign-in hangs indefinitely | Must match exactly. Check in Project → Target → General |
+| Bundle ID mismatch between Xcode and Firebase Console | Auth never works; sign-in hangs indefinitely | Must match exactly. Check in Project → Target → General |
 | Not calling `FirebaseApp.configure()` first in AppDelegate | Crash on first Firebase call | It must be the VERY FIRST line in `didFinishLaunchingWithOptions` |
 | Accessing Firestore before auth | Security rules reject all reads | Always check `Auth.auth().currentUser != nil` |
 | Missing Firestore indexes for compound queries | Query crashes with error in console | Create indexes via Firebase console link in error message |
@@ -1378,7 +1335,7 @@ final class StorageService {
 | Storing sensitive user data without security rules | Anyone can read all user data | Write security rules BEFORE writing any real data |
 | Not batching related Firestore writes | Partial updates on network failure | Use `WriteBatch` for writes that must succeed together |
 | Using `.addSnapshotListener` without removing it | Memory leak; listener fires after view dismissed | Store the listener handle and call `listenerHandle.remove()` in `deinit` |
-| Phone number in wrong format | OTP never sends | Always convert to E.164 (+880XXXXXXXXXX) before calling Firebase |
+| Weak password or invalid email format | Registration fails with unclear error | Validate email format client-side; enforce minimum 6-character password |
 
 ---
 
@@ -1727,10 +1684,10 @@ Types:
   ui       → visual/UI changes
 
 Examples:
-  feat(auth): implement Firebase Phone OTP verification
+  feat(auth): implement Firebase Email/Password authentication
   feat(feed): add real-time listings listener with Combine
   feat(map): integrate MapKit with custom listing annotations
-  fix(auth): handle empty OTP input crash
+  fix(auth): handle empty email/password input validation
   chore(firebase): add FirebaseFirestore to SPM dependencies
   refactor(services): extract image compression to ImageCompressor helper
   ui(feed): add skeleton loading card animation
@@ -1758,13 +1715,13 @@ mkdir -p PlateShareBD/Components
 
 # ── During development: commit frequently ─────────────────────
 git add PlateShareBD/Services/Firebase/AuthService.swift
-git commit -m "feat(auth): add AuthService with phone OTP support"
+git commit -m "feat(auth): add AuthService with email/password support"
 
 git add PlateShareBD/Core/Authentication/ViewModels/AuthViewModel.swift
 git commit -m "feat(auth): implement AuthViewModel with auth state management"
 
 git add PlateShareBD/Core/Authentication/Views/
-git commit -m "ui(auth): add WelcomeView, PhoneAuthView, OTPVerificationView"
+git commit -m "ui(auth): add WelcomeView, EmailAuthView, ProfileSetupView"
 
 # ── Stay synced with develop daily ────────────────────────────
 git fetch origin
@@ -1777,7 +1734,7 @@ git push origin feature/dev-a/authentication
 
 # On GitHub: New Pull Request
 # Base: develop ← Compare: feature/dev-a/authentication
-# Title: "feat(auth): complete authentication module with OTP and profile setup"
+# Title: "feat(auth): complete authentication module with email/password and profile setup"
 # Description: List what was done, what was tested, any known issues
 # Request review from both teammates
 ```
@@ -1867,9 +1824,9 @@ The key is **commit count** and **lines of code** showing on the GitHub Insights
 
 ```
 Developer A:
-  - AuthService.swift (all Firebase Phone Auth)
+  - AuthService.swift (all Firebase Email/Password Auth)
   - AuthViewModel.swift
-  - WelcomeView, PhoneAuthView, OTPVerificationView, ProfileSetupView
+  - WelcomeView, EmailAuthView, ProfileSetupView
   - ProfileViewModel.swift
   - PSUser model
   - UserDefaults/Keychain helpers
@@ -1990,12 +1947,12 @@ Hour 0:00–0:30  Project Scaffold
 
 Hour 0:30–1:30  Authentication (Critical Path)
 ├── Implement PSUser model
-├── Implement AuthService (sendOTP, verifyOTP, createProfile)
+├── Implement AuthService (register, signIn, createProfile)
 ├── Implement AuthViewModel with auth state management
-├── Implement WelcomeView, PhoneAuthView, OTPVerificationView
+├── Implement WelcomeView, EmailAuthView
 ├── Implement ProfileSetupView
-└── Test: OTP sends to a real phone number ✅
-    Commit: "feat(auth): complete phone OTP authentication flow"
+└── Test: Register and sign in with email/password works ✅
+    Commit: "feat(auth): complete email/password authentication flow"
 
 Hour 1:30–2:00  Security Rules + Firestore Setup
 ├── Write Firestore security rules in Firebase Console
@@ -2077,7 +2034,7 @@ Hour 7:45–8:00  Final Push + ZIP
 | Risk | Probability | Mitigation |
 |------|-------------|------------|
 | SPM takes too long to download | Medium | Start SPM download first while you set up folder structure |
-| Phone auth OTP not sending | Medium | Test with Firebase emulator OR check Bundle ID mismatch immediately |
+| Email auth not working | Medium | Verify Email/Password is enabled in Firebase Console → Auth → Sign-in method |
 | Simulator crashing on location | Medium | Use fixed test coordinate for Dhaka: lat 23.8103, lng 90.4125 |
 | Firestore security rules blocking writes | High | Start with `allow read, write: if true;` during dev, harden at end |
 | Merge conflict with teammates later | Low | Each developer owns clearly separate files (see Section 5.4) |
@@ -2086,7 +2043,7 @@ Hour 7:45–8:00  Final Push + ZIP
 ### 6.4 Minimum Viable Progress (If Only 4 Hours Available)
 
 If you only have 4 hours, complete **Hours 0–4** only. This gives you:
-- Working authentication (Firebase Phone OTP)
+- Working authentication (Firebase Email/Password)
 - Working food listing creation
 - Working real-time feed
 - **This is enough to demonstrate the core concept and passes the basic evaluation.**
@@ -2380,9 +2337,6 @@ NSPhotoLibraryUsageDescription
 NSCameraUsageDescription
   → "PlateShare needs camera access to take food photos."
 
-NSMicrophoneUsageDescription
-  → "PlateShare needs microphone access for voice messages."
-
 UIBackgroundModes
   → remote-notification (for FCM background notifications)
 */
@@ -2470,14 +2424,53 @@ struct ListingMapPin: View {
 
 ### 9.1 UI/UX Refinement
 
+#### Design Tokens (Single Source of Truth)
+
+All design values live in `ColorPalette.swift`. **Use semantic system colors** for
+Dark Mode support — never raw hex except for brand accent colours.
+
+```swift
+// Utilities/Constants/ColorPalette.swift — CORRECTED for Dark Mode
+
+import SwiftUI
+
+enum ColorPalette {
+    // Brand accent (same in both modes)
+    static let psGreen        = Color(hex: "2ECC71")
+    static let psGreenDark    = Color(hex: "27AE60")
+    static let psOrange       = Color(hex: "F39C12")
+    static let psRed          = Color(hex: "E74C3C")
+
+    // Semantic backgrounds — adapt automatically
+    static let psBgPrimary    = Color(.systemBackground)       // white / black
+    static let psBgSecondary  = Color(.secondarySystemBackground) // light gray / dark gray
+    static let psBgCard       = Color(.secondarySystemGroupedBackground)
+
+    // Semantic text
+    static let psTextPrimary  = Color(.label)                  // black / white
+    static let psTextSecondary = Color(.secondaryLabel)
+
+    // Semantic fills
+    static let psFieldBg      = Color(.systemGray6)
+    static let psDivider      = Color(.separator)
+}
+```
+
+> **Rule:** Never use `Color.white`, `Color.black` or raw `Color(hex:)` for
+> backgrounds/text. Always use the semantic keys above so the app works in
+> both Light and Dark Mode without checking `colorScheme`.
+
 ```
 Design System:
-  ✅ Consistent color palette: Primary green (#2ECC71), secondary warm (#F39C12)
+  ✅ ColorPalette uses semantic system colors for backgrounds and text
+  ✅ Brand accent colors (psGreen, psOrange) are the ONLY hardcoded hex values
+  ✅ Dark Mode automatically supported via Color(.systemBackground) etc.
   ✅ All padding values use multiples of 4 (8, 12, 16, 24)
   ✅ All corner radii consistent (8 for cards, 12 for sheets, 24 for buttons)
   ✅ Loading states on EVERY async action (never show blank screen)
   ✅ Error states on EVERY async action (never fail silently)
   ✅ Empty states with illustration (no food near you = friendly message)
+  ✅ PSButton, PSTextField, PSAvatarView, PSBadgeView used consistently (no one-off styles)
 
 Accessibility:
   ✅ All images have .accessibilityLabel()
@@ -2524,7 +2517,7 @@ Performance:
 Security:
   ✅ Firestore rules tested: BUYER cannot edit SELLER's listing
   ✅ Firestore rules tested: User cannot read other users' conversations
-  ✅ Phone numbers not displayed publicly (only area/mohalla shown on listing)
+  ✅ Email addresses not displayed publicly (only area/mohalla shown on listing)
   ✅ GoogleService-Info.plist NOT in git history (check with: git log --all -- "*.plist")
 ```
 
@@ -2535,7 +2528,7 @@ Firebase Console checks before submission:
 
 Authentication:
   ✅ Authentication → Users shows test accounts created during development
-  ✅ Phone provider is enabled
+  ✅ Email/Password provider is enabled
   ✅ No unauthorized providers enabled
 
 Firestore:
@@ -2558,7 +2551,27 @@ Usage / Billing:
   ✅ Spark (free) plan active (check for unintentional paid features)
   ✅ Daily Firestore reads < 50,000 (well within free tier for demo)
   ✅ Storage used < 1 GB
+  ✅ Email/Password Auth used (does NOT require Blaze plan)
+  ✅ No Cloud Functions deployed (require Blaze plan)
+  ✅ No Realtime Database used (Firestore only)
 ```
+
+#### Firebase Spark (Free) Plan Limits — Quick Reference
+
+| Service | Free Allowance | Our Expected Usage |
+|---------|---------------|-------------------|
+| **Auth (Email/Password)** | Unlimited users | < 50 test accounts |
+| **Firestore reads** | 50,000 / day | < 5,000 (demo) |
+| **Firestore writes** | 20,000 / day | < 1,000 (demo) |
+| **Firestore deletes** | 20,000 / day | < 100 (demo) |
+| **Firestore storage** | 1 GiB total | < 50 MB |
+| **Storage uploads** | 5 GB total | < 200 MB images |
+| **Storage downloads** | 1 GB / day | < 100 MB (demo) |
+| **FCM (Push)** | Unlimited | Normal usage |
+
+> **Services that require Blaze (paid) and must NOT be used:**
+> Phone Auth, Cloud Functions, Extensions, BigQuery export,
+> Cloud Run, Scheduled Firestore exports, Hosting custom domain SSL.
 
 ### 9.4 Demo Readiness
 
@@ -2573,7 +2586,7 @@ Pre-Demo Setup:
   ✅ At least one conversation exists between "Wedding Host" and "Student"
 
 Demo Script (5 minutes):
-  [0:00–0:30] Open app → WelcomeView → Enter phone → Receive OTP → Enter OTP → Profile Setup
+  [0:00–0:30] Open app → WelcomeView → Enter email & password → Sign Up → Profile Setup
   [0:30–1:30] Show Feed: real-time listings, filter by category, pull-to-refresh
   [1:30–2:00] Show Map: pins on map, radius selector, tap pin for detail
   [2:00–3:00] Create listing: take photo, fill details, submit → appears on OTHER device's feed
@@ -2582,8 +2595,8 @@ Demo Script (5 minutes):
   [4:30–5:00] Q&A: Be ready to show Firestore console with live data, GitHub commit history
 
 Talking Points for Demo:
-  "We used Firebase Phone Auth instead of email because 95% of Bangladeshi users
-   have a mobile number but many don't have email accounts set up on their phones."
+  "We used Firebase Email/Password Auth on the free Spark plan to keep the project
+   zero-cost. This avoids the Blaze billing requirement of Phone OTP Auth."
 
   "Real-time messaging uses Firestore's snapshot listener — when the sender types
    a message, it appears on the recipient's screen within 200ms without any polling."
@@ -2605,7 +2618,7 @@ Talking Points for Demo:
 [4 screenshots: Feed, Map, Chat, Profile]
 
 ## Features
-- Phone OTP Authentication (Firebase)
+- Email/Password Authentication (Firebase)
 - Real-time food listings with MapKit
 - In-app messaging
 - Bangla/English bilingual UI
@@ -2623,7 +2636,7 @@ MVVM + Combine + Firebase
 6. Run (⌘+R)
 
 ## Firebase Configuration
-- Authentication: Phone OTP
+- Authentication: Email/Password
 - Database: Firestore
 - Storage: Firebase Storage
 - Push: Firebase Cloud Messaging
@@ -2659,7 +2672,7 @@ enum FirestoreKeys {
     enum UserFields {
         static let id = "id"
         static let displayName = "displayName"
-        static let phoneNumber = "phoneNumber"
+        static let email = "email"
         static let area = "area"
         static let profileImageURL = "profileImageURL"
         static let isVerified = "isVerified"
