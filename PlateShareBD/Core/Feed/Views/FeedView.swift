@@ -31,9 +31,6 @@ struct FeedView: View {
                                         ListingCardView(listing: listing)
                                     }
                                     .buttonStyle(.plain)
-                                    .onAppear {
-                                        viewModel.loadMoreIfNeeded(currentItem: listing)
-                                    }
                                 }
 
                                 if viewModel.isLoading {

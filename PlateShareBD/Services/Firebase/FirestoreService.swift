@@ -42,47 +42,47 @@ final class FirestoreService {
     func createListing(_ listing: FoodListing) async throws {
         guard Auth.auth().currentUser != nil else { throw AppError.notAuthenticated }
 
+        let data: [String: Any]
         do {
-            let data = try Firestore.Encoder().encode(listing)
-            try await db.collection(FirestoreKeys.Collections.listings).document(listing.id).setData(data)
+            data = try Firestore.Encoder().encode(listing)
         } catch {
             throw AppError.encodingError
         }
+        try await db.collection(FirestoreKeys.Collections.listings).document(listing.id).setData(data)
     }
 
-    // Fetch paginated listings for the feed
+    // Fetch listings for the feed (single-field query — no composite index needed)
     func fetchListings(
-        limit: Int = 20,
-        after lastDocument: DocumentSnapshot? = nil
-    ) async throws -> ([FoodListing], DocumentSnapshot?) {
-        var query: Query = db.collection(FirestoreKeys.Collections.listings)
-            .whereField(FirestoreKeys.ListingFields.isAvailable, isEqualTo: true)
-            .whereField(FirestoreKeys.ListingFields.expiresAt, isGreaterThan: Timestamp(date: Date()))
-            .order(by: FirestoreKeys.ListingFields.expiresAt)
+        limit: Int = 50
+    ) async throws -> [FoodListing] {
+        let query: Query = db.collection(FirestoreKeys.Collections.listings)
             .order(by: FirestoreKeys.ListingFields.createdAt, descending: true)
             .limit(to: limit)
 
-        if let lastDoc = lastDocument {
-            query = query.start(afterDocument: lastDoc)
-        }
-
         let snapshot = try await query.getDocuments()
-        let listings = snapshot.documents.compactMap { try? $0.data(as: FoodListing.self) }
-        return (listings, snapshot.documents.last)
+        let now = Date()
+        return snapshot.documents
+            .compactMap { try? $0.data(as: FoodListing.self) }
+            .filter { $0.isAvailable && $0.expiresAt > now }
     }
 
-    // Real-time listener for feed (using Combine)
+    // Real-time listener for feed (single-field query — no composite index needed)
     func listingsPublisher() -> AnyPublisher<[FoodListing], Never> {
         let subject = PassthroughSubject<[FoodListing], Never>()
 
         db.collection(FirestoreKeys.Collections.listings)
-            .whereField(FirestoreKeys.ListingFields.isAvailable, isEqualTo: true)
-            .whereField(FirestoreKeys.ListingFields.expiresAt, isGreaterThan: Timestamp(date: Date()))
-            .order(by: FirestoreKeys.ListingFields.expiresAt)
+            .order(by: FirestoreKeys.ListingFields.createdAt, descending: true)
             .limit(to: 50)
             .addSnapshotListener { snapshot, error in
+                if let error = error {
+                    print("[FirestoreService] Listings listener error: \(error.localizedDescription)")
+                    return
+                }
                 guard let documents = snapshot?.documents else { return }
-                let listings = documents.compactMap { try? $0.data(as: FoodListing.self) }
+                let now = Date()
+                let listings = documents
+                    .compactMap { try? $0.data(as: FoodListing.self) }
+                    .filter { $0.isAvailable && $0.expiresAt > now }
                 subject.send(listings)
             }
 
@@ -95,13 +95,14 @@ final class FirestoreService {
             .updateData([FirestoreKeys.ListingFields.isAvailable: false])
     }
 
-    // Fetch listings for a specific donor
+    // Fetch listings for a specific donor (single-field query — no composite index needed)
     func fetchUserListings(donorId: String) async throws -> [FoodListing] {
         let snapshot = try await db.collection(FirestoreKeys.Collections.listings)
             .whereField(FirestoreKeys.ListingFields.donorId, isEqualTo: donorId)
-            .order(by: FirestoreKeys.ListingFields.createdAt, descending: true)
             .getDocuments()
-        return snapshot.documents.compactMap { try? $0.data(as: FoodListing.self) }
+        return snapshot.documents
+            .compactMap { try? $0.data(as: FoodListing.self) }
+            .sorted { $0.createdAt > $1.createdAt }
     }
 
     // Delete a listing
@@ -205,13 +206,14 @@ final class FirestoreService {
         return subject.eraseToAnyPublisher()
     }
 
-    // Fetch user conversations
+    // Fetch user conversations (single-field query — no composite index needed)
     func fetchConversations(userId: String) async throws -> [PSConversation] {
         let snapshot = try await db.collection(FirestoreKeys.Collections.conversations)
             .whereField(FirestoreKeys.ConversationFields.participantIds, arrayContains: userId)
-            .order(by: FirestoreKeys.ConversationFields.lastMessageAt, descending: true)
             .getDocuments()
-        return snapshot.documents.compactMap { try? $0.data(as: PSConversation.self) }
+        return snapshot.documents
+            .compactMap { try? $0.data(as: PSConversation.self) }
+            .sorted { ($0.lastMessageAt ?? .distantPast) > ($1.lastMessageAt ?? .distantPast) }
     }
 
     // ─── USERS ────────────────────────────────────────────────

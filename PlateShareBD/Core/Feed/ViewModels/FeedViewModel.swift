@@ -14,10 +14,8 @@ final class FeedViewModel: ObservableObject {
     @Published var listings: [FoodListing] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var hasMorePages = true
     @Published var selectedCategory: FoodListing.FoodCategory?
 
-    private var lastDocument: DocumentSnapshot?
     private var cancellables = Set<AnyCancellable>()
     private let firestoreService: FirestoreService
 
@@ -31,52 +29,28 @@ final class FeedViewModel: ObservableObject {
         startListening()
     }
 
-    // Real-time listener for feed
+    // Real-time listener for feed — primary data source
     private func startListening() {
+        isLoading = true
         firestoreService.listingsPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] listings in
                 self?.listings = listings
+                self?.isLoading = false
+                self?.errorMessage = nil
             }
             .store(in: &cancellables)
     }
 
-    func loadListings() {
-        guard !isLoading else { return }
-        isLoading = true
-        errorMessage = nil
-
-        Task {
-            do {
-                let (newListings, lastDoc) = try await firestoreService
-                    .fetchListings(limit: AppConstants.Pagination.pageSize, after: lastDocument)
-
-                self.listings.append(contentsOf: newListings)
-                self.lastDocument = lastDoc
-                self.hasMorePages = newListings.count == AppConstants.Pagination.pageSize
-            } catch let error as AppError {
-                self.errorMessage = error.errorDescription
-            } catch {
-                self.errorMessage = "Unexpected error. Please try again."
-            }
-            self.isLoading = false
-        }
-    }
-
-    func loadMoreIfNeeded(currentItem: FoodListing) {
-        guard hasMorePages else { return }
-        let thresholdIndex = max(listings.count - 5, 0)
-        if let currentIndex = listings.firstIndex(where: { $0.id == currentItem.id }),
-           currentIndex >= thresholdIndex {
-            loadListings()
-        }
-    }
-
+    // Pull-to-refresh: one-shot fetch from server
     func refresh() async {
-        listings = []
-        lastDocument = nil
-        hasMorePages = true
-        loadListings()
+        errorMessage = nil
+        do {
+            let freshListings = try await firestoreService.fetchListings()
+            self.listings = freshListings
+        } catch {
+            self.errorMessage = error.localizedDescription
+        }
     }
 
     func setCategory(_ category: FoodListing.FoodCategory?) {

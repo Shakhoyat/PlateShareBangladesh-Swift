@@ -15,6 +15,17 @@ struct ProfileView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
+                    // Error banner
+                    if let error = viewModel.errorMessage {
+                        ErrorBannerView(
+                            message: error,
+                            isPresented: .init(
+                                get: { viewModel.errorMessage != nil },
+                                set: { if !$0 { viewModel.errorMessage = nil } }
+                            )
+                        )
+                    }
+
                     // Profile Header
                     profileHeader
 
@@ -139,9 +150,19 @@ struct ProfileView: View {
     // MARK: - Settings
     private var settingsSection: some View {
         VStack(spacing: 0) {
-            SettingsRow(icon: "globe", title: "Language / ভাষা", value: viewModel.user?.preferredLanguage == "bn" ? "বাংলা" : "English")
+            Button {
+                Task { await viewModel.toggleLanguage() }
+            } label: {
+                SettingsRow(icon: "globe", title: "Language / ভাষা", value: viewModel.user?.preferredLanguage == "bn" ? "বাংলা" : "English")
+            }
             Divider().padding(.leading, 44)
-            SettingsRow(icon: "bell.fill", title: "Notifications", value: "On")
+            Button {
+                if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                SettingsRow(icon: "bell.fill", title: "Notifications", value: "")
+            }
             Divider().padding(.leading, 44)
             SettingsRow(icon: "shield.fill", title: "Privacy", value: "")
             Divider().padding(.leading, 44)

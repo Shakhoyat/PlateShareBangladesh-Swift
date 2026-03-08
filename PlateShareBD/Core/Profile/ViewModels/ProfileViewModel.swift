@@ -55,4 +55,23 @@ final class ProfileViewModel: ObservableObject {
             errorMessage = "Failed to update listing."
         }
     }
+
+    func toggleLanguage() async {
+        guard let uid = Auth.auth().currentUser?.uid,
+              var currentUser = user else { return }
+
+        let newLang = currentUser.preferredLanguage == AppConstants.Languages.bangla
+            ? AppConstants.Languages.english
+            : AppConstants.Languages.bangla
+
+        do {
+            try await firestoreService.updateUser(uid: uid, data: [
+                FirestoreKeys.UserFields.preferredLanguage: newLang
+            ])
+            currentUser.preferredLanguage = newLang
+            self.user = currentUser
+        } catch {
+            errorMessage = "Failed to update language."
+        }
+    }
 }

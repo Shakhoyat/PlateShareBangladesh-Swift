@@ -33,12 +33,17 @@ final class ConversationListViewModel: ObservableObject {
         let db = Firestore.firestore()
         listener = db.collection(FirestoreKeys.Collections.conversations)
             .whereField(FirestoreKeys.ConversationFields.participantIds, arrayContains: currentUID)
-            .order(by: FirestoreKeys.ConversationFields.lastMessageAt, descending: true)
             .addSnapshotListener { [weak self] snapshot, error in
+                if let error = error {
+                    print("[ConversationListVM] Listener error: \(error.localizedDescription)")
+                    return
+                }
                 guard let self = self,
                       let documents = snapshot?.documents else { return }
                 Task { @MainActor in
-                    self.conversations = documents.compactMap { try? $0.data(as: PSConversation.self) }
+                    self.conversations = documents
+                        .compactMap { try? $0.data(as: PSConversation.self) }
+                        .sorted { ($0.lastMessageAt ?? .distantPast) > ($1.lastMessageAt ?? .distantPast) }
                     await self.loadUserNames()
                 }
             }
