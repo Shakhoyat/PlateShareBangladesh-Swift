@@ -87,7 +87,18 @@
 "create.error.missing_fields" = "Please fill in all required fields.";
 
 // MARK: - Map
-"map.title" = "Nearby Food 📍";
+"map.title" = "Nearby Food";
+"map.search_placeholder" = "Search area (e.g. Motijheel)";
+"map.listings_count" = "%d listings nearby";
+"map.radius" = "Radius";
+"map.not_found" = "Could not find \"%@\"";
+
+// MARK: - Location Picker
+"location_picker.title" = "Select Pickup Location";
+"location_picker.confirm" = "Confirm Location";
+"location_picker.hint" = "Move the map to select a location";
+"location_picker.cancel" = "Cancel";
+"location_picker.tap_to_select" = "Tap to select on map";
 
 // MARK: - Messages
 "messages.title" = "Messages 💬";

@@ -31,7 +31,7 @@ struct RatingView: View {
                     .foregroundColor(.psTextSecondary)
                 Text(donorName)
                     .font(.headline)
-                    .foregroundColor(.psGreen)
+                    .foregroundColor(.psAccent)
             }
 
             // Star selector
@@ -39,7 +39,7 @@ struct RatingView: View {
                 ForEach(1...5, id: \.self) { star in
                     Image(systemName: star <= selectedScore ? "star.fill" : "star")
                         .font(.title)
-                        .foregroundColor(star <= selectedScore ? .psOrange : .psTextSecondary.opacity(0.3))
+                        .foregroundColor(star <= selectedScore ? .psSecondary : .psTextSecondary.opacity(0.3))
                         .onTapGesture { selectedScore = star }
                         .accessibilityLabel("\(star) star")
                 }

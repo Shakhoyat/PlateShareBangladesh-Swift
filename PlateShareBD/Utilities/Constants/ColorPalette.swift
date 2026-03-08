@@ -8,29 +8,40 @@
 import SwiftUI
 
 extension Color {
-    // Primary brand colors
-    static let psGreen = Color(hex: "2ECC71")
-    static let psGreenDark = Color(hex: "27AE60")
-    static let psGreenLight = Color(hex: "A8E6CF")
+    // ── Primary accent — warm terracotta ──
+    static let psAccent = Color(hex: "C45C3C")       // Warm terracotta
+    static let psAccentDark = Color(hex: "A14028")    // Deep terracotta
+    static let psAccentLight = Color(hex: "E8A990")   // Light peach
 
-    // Secondary / accent
-    static let psOrange = Color(hex: "F39C12")
-    static let psOrangeLight = Color(hex: "F5B041")
-    static let psWarmYellow = Color(hex: "F9E79F")
+    // ── Secondary — saffron gold ──
+    static let psSecondary = Color(hex: "D4912A")     // Saffron / turmeric
+    static let psSecondaryLight = Color(hex: "F2D398") // Light gold
+
+    // ── Neutral warm tones ──
+    static let psWarmGray = Color(hex: "8B7E74")      // Warm gray
+    static let psCream = Color(hex: "FAF5EF")         // Off-white cream
+
+    // Legacy aliases (keep existing references compiling)
+    static let psGreen = Color.psAccent
+    static let psGreenDark = Color.psAccentDark
+    static let psGreenLight = Color.psAccentLight
+    static let psOrange = Color.psSecondary
+    static let psOrangeLight = Color.psSecondaryLight
+    static let psWarmYellow = Color.psSecondaryLight
 
     // Backgrounds (semantic — auto light/dark)
     static let psBgPrimary = Color(.systemBackground)
     static let psBgCard = Color(.secondarySystemGroupedBackground)
-    static let psBgDark = Color(hex: "1A1A2E")
+    static let psBgDark = Color(hex: "2C2420")
 
     // Text (semantic — auto light/dark)
     static let psTextPrimary = Color(.label)
     static let psTextSecondary = Color(.secondaryLabel)
 
-    // Semantic
-    static let psError = Color(hex: "E74C3C")
-    static let psSuccess = Color(hex: "2ECC71")
-    static let psWarning = Color(hex: "F39C12")
+    // Semantic states
+    static let psError = Color(hex: "C0392B")
+    static let psSuccess = Color(hex: "27AE60")
+    static let psWarning = Color(hex: "D4912A")
 
     // Helper init from hex string
     init(hex: String) {

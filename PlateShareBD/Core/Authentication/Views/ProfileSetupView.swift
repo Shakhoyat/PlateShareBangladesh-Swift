@@ -55,7 +55,7 @@ struct ProfileSetupView: View {
 
                         Image(systemName: "camera.circle.fill")
                             .font(.system(size: 28))
-                            .foregroundColor(.psGreen)
+                            .foregroundColor(.psAccent)
                             .background(Circle().fill(.white).frame(width: 24, height: 24))
                     }
                 }
@@ -94,7 +94,7 @@ struct ProfileSetupView: View {
                                     .font(.caption)
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 6)
-                                    .background(area == areaName ? Color.psGreen : Color(.systemGray6))
+                                    .background(area == areaName ? Color.psAccent : Color(.systemGray6))
                                     .foregroundColor(area == areaName ? .white : .psTextPrimary)
                                     .cornerRadius(16)
                             }

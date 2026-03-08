@@ -39,7 +39,7 @@ struct PSAvatarView: View {
             if showBadge {
                 Image(systemName: "checkmark.seal.fill")
                     .font(.system(size: size * 0.3))
-                    .foregroundColor(.psGreen)
+                    .foregroundColor(.psAccent)
                     .background(
                         Circle()
                             .fill(.white)

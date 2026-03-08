@@ -17,8 +17,8 @@ struct WelcomeView: View {
                 // Animated gradient background
                 LinearGradient(
                     colors: [
-                        Color.psGreen.opacity(0.3),
-                        Color.psGreenLight.opacity(0.2),
+                        Color.psAccent.opacity(0.2),
+                        Color.psAccentLight.opacity(0.15),
                         Color.psBgPrimary
                     ],
                     startPoint: animateGradient ? .topLeading : .bottomLeading,
@@ -34,7 +34,7 @@ struct WelcomeView: View {
                     VStack(spacing: 16) {
                         ZStack {
                             Circle()
-                                .fill(Color.psGreen.opacity(0.15))
+                                .fill(Color.psAccent.opacity(0.12))
                                 .frame(width: 120, height: 120)
 
                             Image(systemName: "fork.knife.circle.fill")
@@ -43,7 +43,7 @@ struct WelcomeView: View {
                                 .frame(width: 70, height: 70)
                                 .foregroundStyle(
                                     LinearGradient(
-                                        colors: [.psGreen, .psGreenDark],
+                                        colors: [.psAccent, .psAccentDark],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
@@ -66,8 +66,8 @@ struct WelcomeView: View {
 
                     // Feature highlights
                     VStack(spacing: 16) {
-                        FeatureRow(icon: "leaf.fill", title: "Share Surplus Food", subtitle: "From weddings, events & daily meals", color: .psGreen)
-                        FeatureRow(icon: "map.fill", title: "Find Nearby", subtitle: "Discover food being shared in your area", color: .psOrange)
+                        FeatureRow(icon: "leaf.fill", title: "Share Surplus Food", subtitle: "From weddings, events & daily meals", color: .psAccent)
+                        FeatureRow(icon: "map.fill", title: "Find Nearby", subtitle: "Discover food being shared in your area", color: .psSecondary)
                         FeatureRow(icon: "message.fill", title: "Connect Directly", subtitle: "Message donors and arrange pickup", color: .blue)
                     }
                     .padding(.horizontal, 24)
@@ -86,14 +86,14 @@ struct WelcomeView: View {
                             .padding(.vertical, 16)
                             .background(
                                 LinearGradient(
-                                    colors: [.psGreen, .psGreenDark],
+                                    colors: [.psAccent, .psAccentDark],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
                             .foregroundColor(.white)
                             .cornerRadius(16)
-                            .shadow(color: .psGreen.opacity(0.4), radius: 12, x: 0, y: 6)
+                            .shadow(color: .psAccent.opacity(0.4), radius: 12, x: 0, y: 6)
                         }
                         .accessibilityLabel("Continue with email to sign in or create account")
 
@@ -116,7 +116,7 @@ struct FeatureRow: View {
     let icon: String
     let title: String
     let subtitle: String
-    var color: Color = .psGreen
+    var color: Color = .psAccent
 
     var body: some View {
         HStack(spacing: 14) {

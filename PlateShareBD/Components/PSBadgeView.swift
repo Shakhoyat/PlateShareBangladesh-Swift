@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PSBadgeView: View {
     let text: String
-    var color: Color = .psGreen
+    var color: Color = .psAccent
     var icon: String? = nil
 
     var body: some View {

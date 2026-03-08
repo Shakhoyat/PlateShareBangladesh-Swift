@@ -25,7 +25,7 @@ struct MessageBubbleView: View {
                         isFromCurrentUser
                         ? AnyShapeStyle(
                             LinearGradient(
-                                colors: [.psGreen, .psGreenDark],
+                                colors: [.psAccent, .psAccentDark],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )

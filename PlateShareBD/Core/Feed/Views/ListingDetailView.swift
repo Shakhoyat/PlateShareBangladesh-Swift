@@ -63,7 +63,9 @@ struct ListingDetailView: View {
                                 .foregroundColor(.psTextPrimary)
 
                             HStack(spacing: 4) {
-                                Text(listing.category.emoji)
+                                Image(systemName: listing.category.sfSymbol)
+                                    .font(.subheadline)
+                                    .foregroundColor(.psAccent)
                                 Text(listing.category.rawValue.capitalized)
                                     .font(.subheadline)
                                     .foregroundColor(.psTextSecondary)
@@ -79,9 +81,9 @@ struct ListingDetailView: View {
                     // Tags row
                     HStack(spacing: 8) {
                         if listing.isHalal {
-                            PSBadgeView(text: "Halal", color: .psGreen, icon: "checkmark.circle.fill")
+                            PSBadgeView(text: "Halal", color: .psAccent, icon: "checkmark.circle.fill")
                         }
-                        PSBadgeView(text: listing.quantity, color: .psOrange, icon: "person.2.fill")
+                        PSBadgeView(text: listing.quantity, color: .psSecondary, icon: "person.2.fill")
                         PSBadgeView(
                             text: listing.expiresAt.isExpired ? "Expired" : "Expires \(listing.expiresAt.timeAgo)",
                             color: listing.expiresAt.isExpired ? .psError : .psWarning,
@@ -118,7 +120,7 @@ struct ListingDetailView: View {
                                     .foregroundColor(.psTextPrimary)
                                 Text("Verified Donor")
                                     .font(.caption)
-                                    .foregroundColor(.psGreen)
+                                    .foregroundColor(.psAccent)
                             }
 
                             Spacer()
@@ -135,7 +137,7 @@ struct ListingDetailView: View {
 
                         HStack(spacing: 8) {
                             Image(systemName: "mappin.circle.fill")
-                                .foregroundColor(.psOrange)
+                                .foregroundColor(.psSecondary)
                             Text(listing.pickupAddress)
                                 .font(.body)
                                 .foregroundColor(.psTextSecondary)
@@ -160,7 +162,7 @@ struct ListingDetailView: View {
             if !isOwnListing && listing.isAvailable {
                 // Message Donor button
                 PSButton(
-                    "Message Donor 💬",
+                    "Message Donor",
                     isLoading: isLoadingChat
                 ) {
                     Task { await startChat() }
@@ -171,7 +173,7 @@ struct ListingDetailView: View {
                 .background(.ultraThinMaterial)
             } else if !isOwnListing && !listing.isAvailable {
                 // Rate Donor button (listing already taken)
-                PSButton("Rate Donor ⭐") {
+                PSButton("Rate Donor") {
                     isShowingRating = true
                 }
                 .accessibilityLabel("Rate \(listing.donorName)")

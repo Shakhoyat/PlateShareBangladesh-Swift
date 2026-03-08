@@ -51,6 +51,7 @@ final class AuthViewModel: ObservableObject {
                 let user = try await authService.fetchUserProfile(uid: uid)
                 self.currentUser = user
                 self.authState = .authenticated
+                LanguageManager.shared.setLanguage(user.preferredLanguage)
             } else {
                 self.authState = .needsProfileSetup
             }

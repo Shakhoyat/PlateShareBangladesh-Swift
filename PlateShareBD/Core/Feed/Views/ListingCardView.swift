@@ -42,7 +42,8 @@ struct ListingCardView: View {
 
                 // Category badge
                 HStack(spacing: 4) {
-                    Text(listing.category.emoji)
+                    Image(systemName: listing.category.sfSymbol)
+                        .font(.caption2)
                     Text(listing.category.rawValue.capitalized)
                         .font(.caption2.weight(.semibold))
                 }
@@ -75,7 +76,7 @@ struct ListingCardView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "mappin.circle.fill")
                             .font(.caption2)
-                            .foregroundColor(.psOrange)
+                            .foregroundColor(.psSecondary)
                         Text(listing.pickupAddress.truncated(to: 25))
                             .font(.caption2)
                             .foregroundColor(.psTextSecondary)
@@ -96,9 +97,9 @@ struct ListingCardView: View {
                 // Tags
                 HStack(spacing: 6) {
                     if listing.isHalal {
-                        PSBadgeView(text: "Halal", color: .psGreen, icon: "checkmark.circle.fill")
+                        PSBadgeView(text: "Halal", color: .psAccent, icon: "checkmark.circle.fill")
                     }
-                    PSBadgeView(text: listing.quantity, color: .psOrange, icon: "person.2.fill")
+                    PSBadgeView(text: listing.quantity, color: .psSecondary, icon: "person.2.fill")
                 }
             }
             .padding(12)

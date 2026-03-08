@@ -41,7 +41,7 @@ struct ProfileView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
             }
-            .navigationTitle("Profile")
+            .navigationTitle("profile.title")
             .navigationBarTitleDisplayMode(.large)
         }
     }
@@ -56,14 +56,14 @@ struct ProfileView: View {
             )
 
             VStack(spacing: 4) {
-                Text(viewModel.user?.displayName ?? "Loading...")
+                Text(viewModel.user?.displayName ?? NSLocalizedString("profile.loading", comment: ""))
                     .font(.title3.weight(.bold))
                     .foregroundColor(.psTextPrimary)
 
                 HStack(spacing: 4) {
                     Image(systemName: "mappin.circle.fill")
                         .font(.caption)
-                        .foregroundColor(.psOrange)
+                        .foregroundColor(.psSecondary)
                     Text(viewModel.user?.area ?? "")
                         .font(.subheadline)
                         .foregroundColor(.psTextSecondary)
@@ -76,7 +76,7 @@ struct ProfileView: View {
                     ForEach(1...5, id: \.self) { star in
                         Image(systemName: star <= Int(rating) ? "star.fill" : "star")
                             .font(.caption)
-                            .foregroundColor(.psOrange)
+                            .foregroundColor(.psSecondary)
                     }
                     Text(String(format: "%.1f", rating))
                         .font(.caption.weight(.medium))
@@ -96,19 +96,19 @@ struct ProfileView: View {
         HStack(spacing: 12) {
             StatCard(
                 value: "\(viewModel.user?.totalDonations ?? 0)",
-                label: "Donations",
+                label: NSLocalizedString("profile.donations", comment: ""),
                 icon: "gift.fill",
-                color: .psGreen
+                color: .psAccent
             )
             StatCard(
                 value: "\(viewModel.myListings.filter { $0.isAvailable }.count)",
-                label: "Active",
+                label: NSLocalizedString("profile.active", comment: ""),
                 icon: "clock.fill",
-                color: .psOrange
+                color: .psSecondary
             )
             StatCard(
                 value: String(format: "%.1f", viewModel.user?.donorRating ?? 0.0),
-                label: "Rating",
+                label: NSLocalizedString("profile.rating", comment: ""),
                 icon: "star.fill",
                 color: .yellow
             )
@@ -118,7 +118,7 @@ struct ProfileView: View {
     // MARK: - My Listings
     private var myListingsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("My Listings")
+            Text("profile.my_listings")
                 .font(.headline)
                 .foregroundColor(.psTextPrimary)
 
@@ -127,7 +127,7 @@ struct ProfileView: View {
                     Image(systemName: "tray")
                         .font(.title2)
                         .foregroundColor(.psTextSecondary.opacity(0.4))
-                    Text("No listings yet")
+                    Text("profile.no_listings")
                         .font(.subheadline)
                         .foregroundColor(.psTextSecondary)
                 }
@@ -153,7 +153,7 @@ struct ProfileView: View {
             Button {
                 Task { await viewModel.toggleLanguage() }
             } label: {
-                SettingsRow(icon: "globe", title: "Language / ভাষা", value: viewModel.user?.preferredLanguage == "bn" ? "বাংলা" : "English")
+                SettingsRow(icon: "globe", title: NSLocalizedString("profile.language", comment: ""), value: viewModel.user?.preferredLanguage == "bn" ? "বাংলা" : "English")
             }
             Divider().padding(.leading, 44)
             Button {
@@ -161,10 +161,10 @@ struct ProfileView: View {
                     UIApplication.shared.open(url)
                 }
             } label: {
-                SettingsRow(icon: "bell.fill", title: "Notifications", value: "")
+                SettingsRow(icon: "bell.fill", title: NSLocalizedString("profile.notifications", comment: ""), value: "")
             }
             Divider().padding(.leading, 44)
-            SettingsRow(icon: "shield.fill", title: "Privacy", value: "")
+            SettingsRow(icon: "shield.fill", title: NSLocalizedString("profile.privacy", comment: ""), value: "")
             Divider().padding(.leading, 44)
 
             // Sign Out
@@ -175,7 +175,7 @@ struct ProfileView: View {
                     Image(systemName: "rectangle.portrait.and.arrow.right")
                         .foregroundColor(.psError)
                         .frame(width: 24)
-                    Text("Sign Out")
+                    Text("profile.sign_out")
                         .foregroundColor(.psError)
                     Spacer()
                 }
@@ -226,11 +226,12 @@ struct MyListingRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Emoji category icon
-            Text(listing.category.emoji)
-                .font(.title2)
+            // Category icon
+            Image(systemName: listing.category.sfSymbol)
+                .font(.title3)
+                .foregroundColor(.psAccent)
                 .frame(width: 44, height: 44)
-                .background(Color(.systemGray6))
+                .background(Color.psAccent.opacity(0.1))
                 .cornerRadius(10)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -242,7 +243,7 @@ struct MyListingRow: View {
                 HStack(spacing: 4) {
                     PSBadgeView(
                         text: listing.isAvailable ? "Active" : "Taken",
-                        color: listing.isAvailable ? .psGreen : .psTextSecondary
+                        color: listing.isAvailable ? .psAccent : .psTextSecondary
                     )
                     Text(listing.createdAt.timeAgo)
                         .font(.caption2)
@@ -277,7 +278,7 @@ struct SettingsRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundColor(.psGreen)
+                .foregroundColor(.psAccent)
                 .frame(width: 24)
             Text(title)
                 .font(.subheadline)

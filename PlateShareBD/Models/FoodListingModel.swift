@@ -62,6 +62,20 @@ struct FoodListing: Codable, Identifiable, Hashable {
             case .other: return "🍽️"
             }
         }
+
+        var sfSymbol: String {
+            switch self {
+            case .biryani: return "flame.fill"
+            case .rice: return "leaf.fill"
+            case .curry: return "frying.pan.fill"
+            case .fish: return "fish.fill"
+            case .sweets: return "birthday.cake.fill"
+            case .iftar: return "moon.stars.fill"
+            case .fruits: return "carrot.fill"
+            case .bakery: return "oven.fill"
+            case .other: return "fork.knife"
+            }
+        }
     }
 
     // Hashable conformance using id

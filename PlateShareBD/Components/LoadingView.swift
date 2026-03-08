@@ -13,7 +13,7 @@ struct LoadingView: View {
     var body: some View {
         VStack(spacing: 20) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: .psGreen))
+                .progressViewStyle(CircularProgressViewStyle(tint: .psAccent))
                 .scaleEffect(1.5)
 
             Text(message)

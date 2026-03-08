@@ -51,7 +51,7 @@ struct PSButton: View {
 
     private var backgroundColor: Color {
         switch style {
-        case .primary: return .psGreen
+        case .primary: return .psAccent
         case .secondary: return .psOrange
         case .destructive: return .psError
         }

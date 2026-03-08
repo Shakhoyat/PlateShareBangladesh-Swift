@@ -12,6 +12,7 @@ struct CreateListingView: View {
     @StateObject private var viewModel = CreateListingViewModel()
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var showSuccessAlert = false
+    @State private var showLocationPicker = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -39,13 +40,13 @@ struct CreateListingView: View {
                                             Text("Add Photo")
                                                 .font(.caption2)
                                         }
-                                        .foregroundColor(.psGreen)
+                                        .foregroundColor(.psAccent)
                                         .frame(width: 100, height: 100)
-                                        .background(Color.psGreen.opacity(0.1))
+                                        .background(Color.psAccent.opacity(0.1))
                                         .cornerRadius(12)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .stroke(Color.psGreen.opacity(0.3), style: StrokeStyle(lineWidth: 2, dash: [6]))
+                                                .stroke(Color.psAccent.opacity(0.3), style: StrokeStyle(lineWidth: 2, dash: [6]))
                                         )
                                     }
                                 }
@@ -99,13 +100,14 @@ struct CreateListingView: View {
                                         viewModel.category = category
                                     } label: {
                                         HStack(spacing: 4) {
-                                            Text(category.emoji)
+                                            Image(systemName: category.sfSymbol)
+                                                .font(.caption)
                                             Text(category.rawValue.capitalized)
                                                 .font(.caption.weight(.medium))
                                         }
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 8)
-                                        .background(viewModel.category == category ? Color.psGreen : Color(.systemGray6))
+                                        .background(viewModel.category == category ? Color.psAccent : Color(.systemGray6))
                                         .foregroundColor(viewModel.category == category ? .white : .psTextPrimary)
                                         .cornerRadius(20)
                                     }
@@ -142,28 +144,51 @@ struct CreateListingView: View {
                         )
                     }
 
-                    // Pickup Address
+                    // Pickup Address — map pin selector
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Pickup Address *")
                             .font(.caption.weight(.medium))
                             .foregroundColor(.psTextSecondary)
-                        PSTextField(
-                            placeholder: "e.g., Dhanmondi 27, Block A",
-                            text: $viewModel.pickupAddress,
-                            icon: "mappin.and.ellipse"
-                        )
+
+                        Button {
+                            showLocationPicker = true
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "mappin.and.ellipse")
+                                    .foregroundColor(.psTextSecondary)
+                                    .frame(width: 20)
+                                Text(viewModel.pickupAddress.isEmpty
+                                     ? "Tap to select on map"
+                                     : viewModel.pickupAddress)
+                                    .font(.body)
+                                    .foregroundColor(viewModel.pickupAddress.isEmpty ? .psTextSecondary : .psTextPrimary)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.leading)
+                                Spacer()
+                                Image(systemName: "map.fill")
+                                    .foregroundColor(.psAccent)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color(.systemGray4), lineWidth: 1)
+                            )
+                        }
                     }
 
                     // Halal toggle & Expiry
                     HStack(spacing: 16) {
                         Toggle(isOn: $viewModel.isHalal) {
                             HStack(spacing: 6) {
-                                Text("☪️")
+                                Image(systemName: "checkmark.seal.fill")
+                                    .foregroundColor(.psAccent)
                                 Text("Halal")
                                     .font(.subheadline.weight(.medium))
                             }
                         }
-                        .tint(.psGreen)
+                        .tint(.psAccent)
                     }
 
                     // Expiry
@@ -181,7 +206,7 @@ struct CreateListingView: View {
                     }
 
                     // Submit
-                    PSButton("Share Food 🍽️", isLoading: viewModel.isLoading) {
+                    PSButton("Share Food", isLoading: viewModel.isLoading) {
                         Task { await viewModel.createListing() }
                     }
                     .disabled(!viewModel.isFormValid)
@@ -197,7 +222,7 @@ struct CreateListingView: View {
                 }
                 .padding(20)
             }
-            .navigationTitle("Share Food")
+            .navigationTitle("create.title")
             .navigationBarTitleDisplayMode(.inline)
             .onChange(of: selectedPhotos) { _, newItems in
                 Task {
@@ -215,10 +240,17 @@ struct CreateListingView: View {
                     showSuccessAlert = true
                 }
             }
-            .alert("Food Shared! 🎉", isPresented: $showSuccessAlert) {
+            .alert("Food Shared!", isPresented: $showSuccessAlert) {
                 Button("OK") { dismiss() }
             } message: {
                 Text("Your food listing is now live! People nearby can see it and message you for pickup.")
+            }
+            .sheet(isPresented: $showLocationPicker) {
+                LocationPickerView(
+                    address: $viewModel.pickupAddress,
+                    latitude: $viewModel.pickupLatitude,
+                    longitude: $viewModel.pickupLongitude
+                )
             }
         }
     }

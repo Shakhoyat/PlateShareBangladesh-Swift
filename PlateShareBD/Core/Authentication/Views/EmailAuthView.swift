@@ -25,7 +25,7 @@ struct EmailAuthView: View {
                         .font(.system(size: 50))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.psGreen, .psGreenDark],
+                                colors: [.psAccent, .psAccentDark],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -89,7 +89,7 @@ struct EmailAuthView: View {
                 } label: {
                     Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
                         .font(.footnote.weight(.medium))
-                        .foregroundColor(.psGreen)
+                        .foregroundColor(.psAccent)
                 }
 
                 // Error display

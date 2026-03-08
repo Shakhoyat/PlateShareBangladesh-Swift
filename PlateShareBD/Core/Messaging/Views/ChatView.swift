@@ -63,7 +63,7 @@ struct ChatView: View {
                         .foregroundStyle(
                             viewModel.messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                             ? Color(.systemGray3)
-                            : Color.psGreen
+                            : Color.psAccent
                         )
                 }
                 .disabled(viewModel.messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)

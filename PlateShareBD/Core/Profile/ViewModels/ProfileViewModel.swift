@@ -70,6 +70,7 @@ final class ProfileViewModel: ObservableObject {
             ])
             currentUser.preferredLanguage = newLang
             self.user = currentUser
+            LanguageManager.shared.setLanguage(newLang)
         } catch {
             errorMessage = "Failed to update language."
         }

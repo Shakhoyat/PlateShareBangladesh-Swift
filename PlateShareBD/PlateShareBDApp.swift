@@ -12,11 +12,14 @@ import FirebaseCore
 struct PlateShareBDApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var languageManager = LanguageManager.shared
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(authViewModel)
+                .environmentObject(languageManager)
+                .environment(\.locale, languageManager.locale)
         }
     }
 }

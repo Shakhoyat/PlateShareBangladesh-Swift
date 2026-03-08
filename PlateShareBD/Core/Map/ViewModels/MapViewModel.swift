@@ -18,9 +18,20 @@ final class MapViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
+    // Search
+    @Published var searchText = ""
+    @Published var searchCenter: CLLocationCoordinate2D?
+    @Published var isSearching = false
+
     private let firestoreService = FirestoreService.shared
     private let locationService = LocationService.shared
+    private let geocoder = CLGeocoder()
     private var cancellables = Set<AnyCancellable>()
+
+    /// The effective center for radius filtering — search result or user location
+    var filterCenter: CLLocationCoordinate2D? {
+        searchCenter ?? userLocation
+    }
 
     init() {
         // Listen to location changes
@@ -29,7 +40,9 @@ final class MapViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] coordinate in
                 self?.userLocation = coordinate
-                self?.filterByRadius()
+                if self?.searchCenter == nil {
+                    self?.filterByRadius()
+                }
             }
             .store(in: &cancellables)
 
@@ -56,7 +69,56 @@ final class MapViewModel: ObservableObject {
         locationService.startUpdating()
     }
 
+    // Search for an area name and re-center
+    func searchArea() {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            clearSearch()
+            return
+        }
+
+        isSearching = true
+        errorMessage = nil
+        geocoder.cancelGeocode()
+
+        // Bias results toward Bangladesh
+        let bdRegion = CLCircularRegion(
+            center: CLLocationCoordinate2D(latitude: AppConstants.Location.defaultLatitude,
+                                           longitude: AppConstants.Location.defaultLongitude),
+            radius: 300_000, // ~300 km covers all of Bangladesh
+            identifier: "BD"
+        )
+
+        geocoder.geocodeAddressString(query, in: bdRegion) { [weak self] placemarks, error in
+            DispatchQueue.main.async {
+                self?.isSearching = false
+                if let coord = placemarks?.first?.location?.coordinate {
+                    self?.searchCenter = coord
+                    self?.filterByRadius()
+                } else {
+                    self?.errorMessage = "Could not find \"\(query)\""
+                }
+            }
+        }
+    }
+
+    func clearSearch() {
+        searchText = ""
+        searchCenter = nil
+        errorMessage = nil
+        filterByRadius()
+    }
+
     private func filterByRadius() {
-        filteredListings = locationService.listingsWithinRadius(listings, radiusKM: selectedRadiusKM)
+        guard let center = filterCenter else {
+            filteredListings = listings
+            return
+        }
+        let radiusMeters = selectedRadiusKM * 1000
+        filteredListings = listings.filter { listing in
+            let listingLocation = CLLocation(latitude: listing.latitude, longitude: listing.longitude)
+            let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
+            return centerLocation.distance(from: listingLocation) <= radiusMeters
+        }
     }
 }

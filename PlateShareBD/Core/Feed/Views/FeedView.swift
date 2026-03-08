@@ -57,7 +57,7 @@ struct FeedView: View {
                     )
                 }
             }
-            .navigationTitle("PlateShare 🍽️")
+            .navigationTitle("feed.title")
             .navigationBarTitleDisplayMode(.large)
         }
     }
@@ -68,7 +68,7 @@ struct FeedView: View {
             HStack(spacing: 8) {
                 CategoryChip(
                     title: "All",
-                    emoji: "🍽️",
+                    sfSymbol: "fork.knife",
                     isSelected: viewModel.selectedCategory == nil,
                     action: { viewModel.setCategory(nil) }
                 )
@@ -76,7 +76,7 @@ struct FeedView: View {
                 ForEach(FoodListing.FoodCategory.allCases, id: \.self) { category in
                     CategoryChip(
                         title: category.rawValue.capitalized,
-                        emoji: category.emoji,
+                        sfSymbol: category.sfSymbol,
                         isSelected: viewModel.selectedCategory == category,
                         action: { viewModel.setCategory(category) }
                     )
@@ -93,11 +93,11 @@ struct FeedView: View {
                 .font(.system(size: 50))
                 .foregroundColor(.psTextSecondary.opacity(0.4))
 
-            Text("No food available nearby")
+            Text("feed.empty.title")
                 .font(.headline)
                 .foregroundColor(.psTextPrimary)
 
-            Text("Be the first to share! Tap + to create a listing.")
+            Text("feed.empty.subtitle")
                 .font(.subheadline)
                 .foregroundColor(.psTextSecondary)
                 .multilineTextAlignment(.center)
@@ -109,21 +109,21 @@ struct FeedView: View {
 
 struct CategoryChip: View {
     let title: String
-    let emoji: String
+    let sfSymbol: String
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: 4) {
-                Text(emoji)
-                    .font(.system(size: 14))
+                Image(systemName: sfSymbol)
+                    .font(.system(size: 12))
                 Text(title)
                     .font(.caption.weight(.medium))
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? Color.psGreen : Color(.systemGray6))
+            .background(isSelected ? Color.psAccent : Color(.systemGray6))
             .foregroundColor(isSelected ? .white : .psTextPrimary)
             .cornerRadius(20)
             .animation(.easeInOut(duration: 0.2), value: isSelected)

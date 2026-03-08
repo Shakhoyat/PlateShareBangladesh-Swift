@@ -49,17 +49,25 @@ final class StorageService {
 
         // Step 4: Upload
         do {
-            _ = try await ref.putDataAsync(compressed, metadata: metadata)
+            _ = try await ref.putData(compressed, metadata: metadata)
         } catch {
             throw StorageError.uploadFailed(error.localizedDescription)
         }
 
-        // Step 5: Get download URL
-        guard let url = try? await ref.downloadURL() else {
-            throw StorageError.invalidURL
+        // Step 5: Get download URL (retry once if storage needs propagation time)
+        do {
+            let url = try await ref.downloadURL()
+            return url.absoluteString
+        } catch {
+            // Retry after a brief delay — Firebase Storage can have propagation lag
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            do {
+                let url = try await ref.downloadURL()
+                return url.absoluteString
+            } catch {
+                throw StorageError.uploadFailed(error.localizedDescription)
+            }
         }
-
-        return url.absoluteString
     }
 
     // Upload profile photo
@@ -72,10 +80,14 @@ final class StorageService {
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
 
-        _ = try await ref.putDataAsync(compressed, metadata: metadata)
-        guard let url = try? await ref.downloadURL() else {
-            throw StorageError.invalidURL
+        _ = try await ref.putData(compressed, metadata: metadata)
+        do {
+            let url = try await ref.downloadURL()
+            return url.absoluteString
+        } catch {
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            let url = try await ref.downloadURL()
+            return url.absoluteString
         }
-        return url.absoluteString
     }
 }

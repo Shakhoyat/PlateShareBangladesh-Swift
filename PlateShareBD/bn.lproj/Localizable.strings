@@ -87,7 +87,18 @@
 "create.error.missing_fields" = "সব প্রয়োজনীয় তথ্য পূরণ করুন।";
 
 // MARK: - Map
-"map.title" = "কাছাকাছি খাবার ";
+"map.title" = "কাছাকাছি খাবার";
+"map.search_placeholder" = "এলাকা খুঁজুন (যেমন মতিঝিল)";
+"map.listings_count" = "%d টি লিস্টিং কাছাকাছি";
+"map.radius" = "ব্যাসার্ধ";
+"map.not_found" = "\"%@\" খুঁজে পাওয়া যায়নি";
+
+// MARK: - Location Picker
+"location_picker.title" = "পিকআপ স্থান নির্বাচন করুন";
+"location_picker.confirm" = "স্থান নিশ্চিত করুন";
+"location_picker.hint" = "স্থান নির্বাচন করতে ম্যাপ সরান";
+"location_picker.cancel" = "বাতিল";
+"location_picker.tap_to_select" = "ম্যাপে নির্বাচন করতে ট্যাপ করুন";
 
 // MARK: - Messages
 "messages.title" = "মেসেজ";

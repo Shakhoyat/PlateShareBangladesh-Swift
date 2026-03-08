@@ -30,7 +30,7 @@ struct ConversationListView: View {
                     .listStyle(.plain)
                 }
             }
-            .navigationTitle("Messages 💬")
+            .navigationTitle("messages.title")
             .navigationBarTitleDisplayMode(.large)
         }
     }
@@ -41,11 +41,11 @@ struct ConversationListView: View {
                 .font(.system(size: 50))
                 .foregroundColor(.psTextSecondary.opacity(0.4))
 
-            Text("No messages yet")
+            Text("messages.empty.title")
                 .font(.headline)
                 .foregroundColor(.psTextPrimary)
 
-            Text("Message a food donor to arrange pickup!")
+            Text("messages.empty.subtitle")
                 .font(.subheadline)
                 .foregroundColor(.psTextSecondary)
                 .multilineTextAlignment(.center)
@@ -90,7 +90,7 @@ struct ConversationRowView: View {
                             .font(.caption2.weight(.bold))
                             .foregroundColor(.white)
                             .frame(width: 20, height: 20)
-                            .background(Color.psGreen)
+                            .background(Color.psAccent)
                             .clipShape(Circle())
                     }
                 }

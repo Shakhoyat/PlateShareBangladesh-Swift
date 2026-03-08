@@ -16,6 +16,8 @@ final class CreateListingViewModel: ObservableObject {
     @Published var category: FoodListing.FoodCategory = .other
     @Published var quantity = ""
     @Published var pickupAddress = ""
+    @Published var pickupLatitude: Double = 0
+    @Published var pickupLongitude: Double = 0
     @Published var isHalal = true
     @Published var expiryHours = AppConstants.Listing.defaultExpiryHours
     @Published var selectedImages: [UIImage] = []
@@ -55,9 +57,11 @@ final class CreateListingViewModel: ObservableObject {
                 imageURLs.append(url)
             }
 
-            // Get location
-            let latitude = locationService.currentLocation?.coordinate.latitude ?? AppConstants.Location.defaultLatitude
-            let longitude = locationService.currentLocation?.coordinate.longitude ?? AppConstants.Location.defaultLongitude
+            // Use selected location or fall back to current/default
+            let latitude = pickupLatitude != 0 ? pickupLatitude
+                : (locationService.currentLocation?.coordinate.latitude ?? AppConstants.Location.defaultLatitude)
+            let longitude = pickupLongitude != 0 ? pickupLongitude
+                : (locationService.currentLocation?.coordinate.longitude ?? AppConstants.Location.defaultLongitude)
 
             // Fetch current user name
             let user = try await firestoreService.fetchUser(uid: currentUID)
@@ -113,6 +117,8 @@ final class CreateListingViewModel: ObservableObject {
         category = .other
         quantity = ""
         pickupAddress = ""
+        pickupLatitude = 0
+        pickupLongitude = 0
         isHalal = true
         expiryHours = AppConstants.Listing.defaultExpiryHours
         selectedImages = []
