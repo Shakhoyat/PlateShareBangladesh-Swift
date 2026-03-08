@@ -48,7 +48,7 @@
 "tab.profile" = "প্রোফাইল";
 
 // MARK: - Feed
-"feed.title" = "প্লেটশেয়ার 🍽️";
+"feed.title" = "প্লেটশেয়ার ";
 "feed.all" = "সব";
 "feed.empty.title" = "কাছাকাছি কোনো খাবার নেই";
 "feed.empty.subtitle" = "প্রথম শেয়ার করুন! + ট্যাপ করে লিস্টিং তৈরি করুন।";
@@ -63,7 +63,7 @@
 "listing.verified_donor" = "যাচাইকৃত দাতা";
 "listing.pickup_location" = "পিকআপ স্থান";
 "listing.no_photo_available" = "কোনো ছবি নেই";
-"listing.message_donor" = "দাতাকে মেসেজ করুন 💬";
+"listing.message_donor" = "দাতাকে মেসেজ করুন ";
 "listing.active" = "সক্রিয়";
 
 // MARK: - Create Listing
@@ -80,17 +80,17 @@
 "create.title_placeholder" = "যেমন, বিয়ের বিরিয়ানি - তাজা ও গরম";
 "create.quantity_placeholder" = "যেমন, ১০ জনের জন্য";
 "create.address_placeholder" = "যেমন, ধানমন্ডি ২৭, ব্লক এ";
-"create.submit" = "খাবার শেয়ার করুন 🍽️";
-"create.success_title" = "খাবার শেয়ার হয়েছে! 🎉";
+"create.submit" = "খাবার শেয়ার করুন ";
+"create.success_title" = "খাবার শেয়ার হয়েছে! ";
 "create.success_message" = "আপনার খাবারের লিস্টিং এখন লাইভ! কাছাকাছি মানুষ এটি দেখতে এবং পিকআপের জন্য মেসেজ করতে পারবে।";
 "create.error.not_logged_in" = "লিস্টিং তৈরি করতে লগ ইন করতে হবে।";
 "create.error.missing_fields" = "সব প্রয়োজনীয় তথ্য পূরণ করুন।";
 
 // MARK: - Map
-"map.title" = "কাছাকাছি খাবার 📍";
+"map.title" = "কাছাকাছি খাবার ";
 
 // MARK: - Messages
-"messages.title" = "মেসেজ 💬";
+"messages.title" = "মেসেজ";
 "messages.empty.title" = "এখনো কোনো মেসেজ নেই";
 "messages.empty.subtitle" = "পিকআপের জন্য একজন দাতাকে মেসেজ করুন!";
 "messages.input_placeholder" = "মেসেজ লিখুন...";
@@ -123,7 +123,7 @@
 "rating.thanks" = "আপনার মতামতের জন্য ধন্যবাদ!";
 
 // MARK: - Notifications
-"notification.expiring.title" = "খাবারের মেয়াদ শেষ হচ্ছে! ⏰";
+"notification.expiring.title" = "খাবারের মেয়াদ শেষ হচ্ছে! ";
 "notification.expiring.body" = "%@ এর মেয়াদ শেষ হতে চলেছে। কেউ নিতে চায় কিনা দেখুন!";
 
 // MARK: - Common
