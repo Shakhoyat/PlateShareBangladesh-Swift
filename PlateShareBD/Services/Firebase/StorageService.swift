@@ -30,8 +30,10 @@ final class StorageService {
     private let storage = Storage.storage()
 
     // Upload food photo — returns download URL string
+    // Path: listings/{userId}/{listingId}/{uuid}.jpg — matches Firebase Storage rules for per-user writes
     func uploadFoodImage(
         _ image: UIImage,
+        userId: String,
         listingId: String
     ) async throws -> String {
         // Step 1: Compress (CRITICAL for Bangladesh's mobile data costs)
@@ -41,7 +43,7 @@ final class StorageService {
 
         // Step 2: Create storage reference
         let filename = "\(UUID().uuidString).jpg"
-        let ref = storage.reference().child("listings/\(listingId)/\(filename)")
+        let ref = storage.reference().child("listings/\(userId)/\(listingId)/\(filename)")
 
         // Step 3: Set metadata
         let metadata = StorageMetadata()

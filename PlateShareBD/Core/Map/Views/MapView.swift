@@ -25,7 +25,7 @@ struct MapView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Map(position: $cameraPosition) {
+                Map(position: $cameraPosition, interactionModes: .all) {
                     // User location
                     UserAnnotation()
 

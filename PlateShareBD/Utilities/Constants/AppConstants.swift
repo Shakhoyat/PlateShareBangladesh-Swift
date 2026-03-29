@@ -11,6 +11,9 @@ enum AppConstants {
     enum Location {
         static let defaultLatitude = 23.8103   // Dhaka, Bangladesh
         static let defaultLongitude = 90.4125
+        // Geographic center of Bangladesh — used for country-wide map views
+        static let bangladeshCenterLatitude = 23.6850
+        static let bangladeshCenterLongitude = 90.3563
         static let defaultRadiusKM: Double = 2.0
         static let minRadiusKM: Double = 0.5
         static let maxRadiusKM: Double = 5.0

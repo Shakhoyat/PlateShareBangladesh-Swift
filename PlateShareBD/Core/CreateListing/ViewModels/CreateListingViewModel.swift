@@ -53,7 +53,7 @@ final class CreateListingViewModel: ObservableObject {
             // Upload images
             var imageURLs: [String] = []
             for image in selectedImages {
-                let url = try await storageService.uploadFoodImage(image, listingId: listingId)
+                let url = try await storageService.uploadFoodImage(image, userId: currentUID, listingId: listingId)
                 imageURLs.append(url)
             }
 

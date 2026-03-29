@@ -27,13 +27,19 @@ struct LocationPickerView: View {
         _latitude = latitude
         _longitude = longitude
 
+        let hasExistingLocation = latitude.wrappedValue != 0 && longitude.wrappedValue != 0
         let coord = CLLocationCoordinate2D(
-            latitude: latitude.wrappedValue != 0 ? latitude.wrappedValue : AppConstants.Location.defaultLatitude,
-            longitude: longitude.wrappedValue != 0 ? longitude.wrappedValue : AppConstants.Location.defaultLongitude
+            latitude: hasExistingLocation ? latitude.wrappedValue : AppConstants.Location.bangladeshCenterLatitude,
+            longitude: hasExistingLocation ? longitude.wrappedValue : AppConstants.Location.bangladeshCenterLongitude
         )
+        // When no location is set yet, show the whole country so the user can pick anywhere in Bangladesh.
+        // When editing an existing pin, zoom in close.
+        let span = hasExistingLocation
+            ? MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            : MKCoordinateSpan(latitudeDelta: 4.0, longitudeDelta: 4.0)
         _pinCoordinate = State(initialValue: coord)
         _cameraPosition = State(initialValue: .region(
-            MKCoordinateRegion(center: coord, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+            MKCoordinateRegion(center: coord, span: span)
         ))
     }
 
@@ -124,7 +130,7 @@ struct LocationPickerView: View {
         isGeocoding = true
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
         geocoder.cancelGeocode()
-        geocoder.reverseGeocodeLocation(location) { placemarks, error in
+        geocoder.reverseGeocodeLocation(location, preferredLocale: Locale(identifier: "en_BD")) { placemarks, error in
             DispatchQueue.main.async {
                 isGeocoding = false
                 if let pm = placemarks?.first {
