@@ -1,0 +1,145 @@
+/* 
+  Localizable.strings (Bangla)
+  PlateShareBD
+*/
+
+// MARK: - Welcome
+"welcome.title" = "প্লেটশেয়ার বিডি";
+"welcome.subtitle_bn" = "খাবার ভাগ করুন, ভালোবাসা ছড়িয়ে দিন";
+"welcome.subtitle_en" = "Share food, spread love";
+"welcome.continue_email" = "ইমেইল দিয়ে চালিয়ে যান";
+"welcome.terms" = "এগিয়ে যাওয়ার মাধ্যমে আপনি আমাদের সেবার শর্তাবলীতে সম্মত হচ্ছেন";
+"welcome.feature.share" = "উদ্বৃত্ত খাবার শেয়ার করুন";
+"welcome.feature.share.sub" = "বিয়ে, অনুষ্ঠান ও দৈনন্দিন খাবার থেকে";
+"welcome.feature.nearby" = "কাছাকাছি খুঁজুন";
+"welcome.feature.nearby.sub" = "আপনার এলাকায় শেয়ার করা খাবার খুঁজুন";
+"welcome.feature.connect" = "সরাসরি যোগাযোগ করুন";
+"welcome.feature.connect.sub" = "দাতাদের মেসেজ করুন এবং পিকআপ ঠিক করুন";
+
+// MARK: - Auth
+"auth.create_account" = "অ্যাকাউন্ট তৈরি করুন";
+"auth.welcome_back" = "আবার স্বাগতম";
+"auth.create_account_bn" = "অ্যাকাউন্ট তৈরি করুন";
+"auth.welcome_back_bn" = "আবার স্বাগতম";
+"auth.email_placeholder" = "ইমেইল ঠিকানা";
+"auth.password_placeholder" = "পাসওয়ার্ড (ন্যূনতম ৬ অক্ষর)";
+"auth.sign_in" = "সাইন ইন";
+"auth.toggle_signup" = "অ্যাকাউন্ট নেই? সাইন আপ করুন";
+"auth.toggle_signin" = "অ্যাকাউন্ট আছে? সাইন ইন করুন";
+"auth.error.signin" = "সাইন ইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।";
+"auth.error.register" = "রেজিস্ট্রেশন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।";
+"auth.error.general" = "প্রমাণীকরণে ত্রুটি। আবার চেষ্টা করুন।";
+"auth.error.signout" = "সাইন আউট করা যায়নি। আবার চেষ্টা করুন।";
+
+// MARK: - Profile Setup
+"profile_setup.title" = "আপনার প্রোফাইল সেট আপ করুন";
+"profile_setup.title_bn" = "আপনার প্রোফাইল সেট আপ করুন";
+"profile_setup.name_label" = "আপনার নাম";
+"profile_setup.area_label" = "আপনার এলাকা / মহল্লা";
+"profile_setup.name_placeholder" = "আপনার নাম লিখুন";
+"profile_setup.area_placeholder" = "আপনার এলাকা লিখুন";
+"profile_setup.complete" = "প্রোফাইল সম্পন্ন করুন";
+
+// MARK: - Tab Bar
+"tab.feed" = "ফিড";
+"tab.map" = "ম্যাপ";
+"tab.share" = "শেয়ার";
+"tab.messages" = "মেসেজ";
+"tab.profile" = "প্রোফাইল";
+
+// MARK: - Feed
+"feed.title" = "প্লেটশেয়ার ";
+"feed.all" = "সব";
+"feed.empty.title" = "কাছাকাছি কোনো খাবার নেই";
+"feed.empty.subtitle" = "প্রথম শেয়ার করুন! + ট্যাপ করে লিস্টিং তৈরি করুন।";
+
+// MARK: - Listing Card
+"listing.no_photo" = "ছবি নেই";
+"listing.halal" = "হালাল";
+"listing.taken" = "নেওয়া হয়েছে";
+"listing.expired" = "মেয়াদ শেষ";
+"listing.description" = "বিবরণ";
+"listing.shared_by" = "শেয়ার করেছেন";
+"listing.verified_donor" = "যাচাইকৃত দাতা";
+"listing.pickup_location" = "পিকআপ স্থান";
+"listing.no_photo_available" = "কোনো ছবি নেই";
+"listing.message_donor" = "দাতাকে মেসেজ করুন ";
+"listing.active" = "সক্রিয়";
+
+// MARK: - Create Listing
+"create.title" = "খাবার শেয়ার করুন";
+"create.photos" = "খাবারের ছবি";
+"create.add_photo" = "ছবি যোগ করুন";
+"create.food_title" = "খাবারের শিরোনাম *";
+"create.category" = "ক্যাটেগরি";
+"create.description" = "বিবরণ (ঐচ্ছিক)";
+"create.quantity" = "পরিমাণ *";
+"create.pickup_address" = "পিকআপ ঠিকানা *";
+"create.halal" = "হালাল";
+"create.hours" = "কত ঘণ্টা পাওয়া যাবে";
+"create.title_placeholder" = "যেমন, বিয়ের বিরিয়ানি - তাজা ও গরম";
+"create.quantity_placeholder" = "যেমন, ১০ জনের জন্য";
+"create.address_placeholder" = "যেমন, ধানমন্ডি ২৭, ব্লক এ";
+"create.submit" = "খাবার শেয়ার করুন ";
+"create.success_title" = "খাবার শেয়ার হয়েছে! ";
+"create.success_message" = "আপনার খাবারের লিস্টিং এখন লাইভ! কাছাকাছি মানুষ এটি দেখতে এবং পিকআপের জন্য মেসেজ করতে পারবে।";
+"create.error.not_logged_in" = "লিস্টিং তৈরি করতে লগ ইন করতে হবে।";
+"create.error.missing_fields" = "সব প্রয়োজনীয় তথ্য পূরণ করুন।";
+
+// MARK: - Map
+"map.title" = "কাছাকাছি খাবার";
+"map.search_placeholder" = "এলাকা খুঁজুন (যেমন মতিঝিল)";
+"map.listings_count" = "%d টি লিস্টিং কাছাকাছি";
+"map.radius" = "ব্যাসার্ধ";
+"map.not_found" = "\"%@\" খুঁজে পাওয়া যায়নি";
+
+// MARK: - Location Picker
+"location_picker.title" = "পিকআপ স্থান নির্বাচন করুন";
+"location_picker.confirm" = "স্থান নিশ্চিত করুন";
+"location_picker.hint" = "স্থান নির্বাচন করতে ম্যাপ সরান";
+"location_picker.cancel" = "বাতিল";
+"location_picker.tap_to_select" = "ম্যাপে নির্বাচন করতে ট্যাপ করুন";
+
+// MARK: - Messages
+"messages.title" = "মেসেজ";
+"messages.empty.title" = "এখনো কোনো মেসেজ নেই";
+"messages.empty.subtitle" = "পিকআপের জন্য একজন দাতাকে মেসেজ করুন!";
+"messages.input_placeholder" = "মেসেজ লিখুন...";
+"messages.error.send" = "মেসেজ পাঠানো যায়নি।";
+
+// MARK: - Profile
+"profile.title" = "প্রোফাইল";
+"profile.loading" = "লোড হচ্ছে...";
+"profile.donations" = "দান";
+"profile.active" = "সক্রিয়";
+"profile.rating" = "রেটিং";
+"profile.my_listings" = "আমার লিস্টিং";
+"profile.no_listings" = "এখনো কোনো লিস্টিং নেই";
+"profile.language" = "ভাষা / Language";
+"profile.notifications" = "নোটিফিকেশন";
+"profile.notifications_on" = "চালু";
+"profile.privacy" = "গোপনীয়তা";
+"profile.sign_out" = "সাইন আউট";
+"profile.mark_taken" = "নেওয়া হয়েছে চিহ্নিত করুন";
+"profile.delete" = "মুছুন";
+"profile.error.load" = "প্রোফাইল লোড করা যায়নি।";
+"profile.error.delete" = "লিস্টিং মুছে ফেলা যায়নি।";
+"profile.error.update" = "লিস্টিং আপডেট করা যায়নি।";
+
+// MARK: - Rating
+"rating.title" = "দাতাকে রেট করুন";
+"rating.subtitle" = "আপনার অভিজ্ঞতা কেমন ছিল?";
+"rating.comment_placeholder" = "মন্তব্য লিখুন (ঐচ্ছিক)";
+"rating.submit" = "রেটিং দিন";
+"rating.thanks" = "আপনার মতামতের জন্য ধন্যবাদ!";
+
+// MARK: - Notifications
+"notification.expiring.title" = "খাবারের মেয়াদ শেষ হচ্ছে! ";
+"notification.expiring.body" = "%@ এর মেয়াদ শেষ হতে চলেছে। কেউ নিতে চায় কিনা দেখুন!";
+
+// MARK: - Common
+"common.ok" = "ঠিক আছে";
+"common.cancel" = "বাতিল";
+"common.error" = "কিছু ভুল হয়েছে। আবার চেষ্টা করুন।";
+"common.loading" = "লোড হচ্ছে...";
+"common.verifying" = "যাচাই করা হচ্ছে...";
