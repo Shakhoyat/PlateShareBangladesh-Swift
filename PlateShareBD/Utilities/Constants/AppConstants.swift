@@ -31,6 +31,15 @@ enum AppConstants {
         static let pageSize = 20
     }
 
+    // MARK: - Cloudinary (free image hosting — replaces Firebase Storage)
+    // 1. Sign up at https://cloudinary.com (free, no credit card)
+    // 2. Dashboard → Settings → Upload → Add upload preset → set to "Unsigned"
+    // 3. Paste your Cloud Name and the preset name below
+    enum Cloudinary {
+        static let cloudName   = "plateshare-bd"    // e.g. "plateshare-bd"
+        static let uploadPreset = "Unsigned" // unsigned preset name
+    }
+
     enum Languages {
         static let english = "en"
         static let bangla = "bn"
