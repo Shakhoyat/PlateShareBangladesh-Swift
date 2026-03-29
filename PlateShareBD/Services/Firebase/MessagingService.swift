@@ -8,7 +8,6 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
-import Combine
 
 /// Dedicated service for messaging operations that wraps FirestoreService
 /// messaging methods and adds additional messaging-specific logic.
@@ -38,11 +37,6 @@ final class MessagingService {
     // Send a text message in a conversation
     func sendMessage(conversationId: String, text: String) async throws {
         try await firestoreService.sendMessage(conversationId: conversationId, text: text)
-    }
-
-    // Get real-time messages for a conversation
-    func listenToMessages(conversationId: String) -> AnyPublisher<[PSMessage], Never> {
-        return firestoreService.messagesPublisher(conversationId: conversationId)
     }
 
     // Mark messages as read

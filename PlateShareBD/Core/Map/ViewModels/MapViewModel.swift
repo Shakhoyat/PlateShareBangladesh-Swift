@@ -8,6 +8,7 @@
 import Foundation
 import CoreLocation
 import Combine
+import FirebaseFirestore
 
 @MainActor
 final class MapViewModel: ObservableObject {
@@ -23,10 +24,10 @@ final class MapViewModel: ObservableObject {
     @Published var searchCenter: CLLocationCoordinate2D?
     @Published var isSearching = false
 
-    private let firestoreService = FirestoreService.shared
     private let locationService = LocationService.shared
     private let geocoder = CLGeocoder()
     private var cancellables = Set<AnyCancellable>()
+    private var listingsListener: ListenerRegistration?
 
     /// The effective center for radius filtering — search result or user location
     var filterCenter: CLLocationCoordinate2D? {
@@ -55,13 +56,23 @@ final class MapViewModel: ObservableObject {
             .store(in: &cancellables)
 
         // Listen to listings updates
-        firestoreService.listingsPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] listings in
-                self?.listings = listings
-                self?.filterByRadius()
+        listingsListener = Firestore.firestore()
+            .collection(FirestoreKeys.Collections.listings)
+            .order(by: FirestoreKeys.ListingFields.createdAt, descending: true)
+            .limit(to: 200)
+            .addSnapshotListener { [weak self] snapshot, error in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    if let docs = snapshot?.documents {
+                        self.listings = docs.compactMap { try? $0.data(as: FoodListing.self) }
+                        self.filterByRadius()
+                    }
+                }
             }
-            .store(in: &cancellables)
+    }
+
+    deinit {
+        listingsListener?.remove()
     }
 
     func requestLocationAndLoad() {
