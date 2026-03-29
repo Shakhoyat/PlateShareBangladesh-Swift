@@ -54,6 +54,8 @@ struct EmailAuthView: View {
                     .textContentType(.emailAddress)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .password }
 
                     PSTextField(
                         placeholder: "Password (min 6 characters)",
@@ -63,6 +65,8 @@ struct EmailAuthView: View {
                     )
                     .focused($focusedField, equals: .password)
                     .textContentType(isSignUp ? .newPassword : .password)
+                    .submitLabel(.done)
+                    .onSubmit { submitAuth() }
                 }
 
                 // Submit
@@ -70,19 +74,14 @@ struct EmailAuthView: View {
                     isSignUp ? "Create Account" : "Sign In",
                     isLoading: authViewModel.isLoading
                 ) {
-                    Task {
-                        if isSignUp {
-                            await authViewModel.register(email: email, password: password)
-                        } else {
-                            await authViewModel.signIn(email: email, password: password)
-                        }
-                    }
+                    submitAuth()
                 }
                 .disabled(email.isEmpty || password.count < 6)
 
                 // Toggle sign-in / sign-up
                 Button {
-                    withAnimation(.easeInOut) {
+                    PSHaptics.selection()
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         isSignUp.toggle()
                         authViewModel.errorMessage = nil
                     }
@@ -104,14 +103,32 @@ struct EmailAuthView: View {
                     .padding(12)
                     .background(Color.psError.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
                 Spacer()
             }
             .padding(24)
+            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: authViewModel.errorMessage != nil)
         }
+        .scrollDismissesKeyboard(.interactively)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { focusedField = .email }
+        .onChange(of: authViewModel.errorMessage) { _, newError in
+            if newError != nil { PSHaptics.error() }
+        }
+    }
+
+    private func submitAuth() {
+        guard !email.isEmpty, password.count >= 6 else { return }
+        focusedField = nil
+        Task {
+            if isSignUp {
+                await authViewModel.register(email: email, password: password)
+            } else {
+                await authViewModel.signIn(email: email, password: password)
+            }
+        }
     }
 }
 

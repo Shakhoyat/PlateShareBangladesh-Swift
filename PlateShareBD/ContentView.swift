@@ -23,7 +23,7 @@ struct ContentView: View {
                 MainTabView()
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: authViewModel.authState)
+        .animation(.spring(response: 0.45, dampingFraction: 0.75), value: authViewModel.authState)
     }
 }
 

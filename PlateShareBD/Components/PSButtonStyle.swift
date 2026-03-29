@@ -2,8 +2,6 @@
 //  PSButtonStyle.swift
 //  PlateShareBD
 //
-//  Created by PlateShare Team.
-//
 
 import SwiftUI
 
@@ -12,6 +10,8 @@ struct PSButton: View {
     var isLoading: Bool = false
     var style: PSButtonType = .primary
     let action: () -> Void
+
+    @State private var isPressed = false
 
     enum PSButtonType {
         case primary
@@ -27,7 +27,10 @@ struct PSButton: View {
     }
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            PSHaptics.medium()
+            action()
+        } label: {
             HStack(spacing: 8) {
                 if isLoading {
                     ProgressView()
@@ -42,11 +45,24 @@ struct PSButton: View {
             .background(backgroundColor)
             .foregroundStyle(foregroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: backgroundColor.opacity(0.3), radius: 8, x: 0, y: 4)
+            .shadow(
+                color: backgroundColor.opacity(isPressed ? 0.1 : 0.3),
+                radius: isPressed ? 2 : 8,
+                x: 0, y: isPressed ? 1 : 4
+            )
         }
         .disabled(isLoading)
         .opacity(isLoading ? 0.8 : 1.0)
-        .animation(.easeInOut(duration: 0.2), value: isLoading)
+        .scaleEffect(isPressed ? 0.96 : 1.0)
+        .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isLoading)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !isPressed { isPressed = true }
+                }
+                .onEnded { _ in isPressed = false }
+        )
     }
 
     private var backgroundColor: Color {
@@ -57,9 +73,7 @@ struct PSButton: View {
         }
     }
 
-    private var foregroundColor: Color {
-        return .white
-    }
+    private var foregroundColor: Color { .white }
 }
 
 #Preview {

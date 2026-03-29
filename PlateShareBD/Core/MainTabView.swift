@@ -10,6 +10,7 @@ import SwiftUI
 struct MainTabView: View {
     @State private var selectedTab = 0
     @State private var showCreateListing = false
+    @State private var fabPressed = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -46,9 +47,19 @@ struct MainTabView: View {
                     .tag(4)
             }
             .tint(.psAccent)
+            .onChange(of: selectedTab) { _, newValue in
+                if newValue == 2 {
+                    PSHaptics.medium()
+                    showCreateListing = true
+                    selectedTab = 0
+                } else {
+                    PSHaptics.selection()
+                }
+            }
 
-            // Floating center button
+            // Floating action button
             Button {
+                PSHaptics.medium()
                 showCreateListing = true
             } label: {
                 ZStack {
@@ -61,23 +72,31 @@ struct MainTabView: View {
                             )
                         )
                         .frame(width: 56, height: 56)
-                        .shadow(color: .psAccent.opacity(0.4), radius: 8, x: 0, y: 4)
+                        .shadow(
+                            color: .psAccent.opacity(fabPressed ? 0.2 : 0.4),
+                            radius: fabPressed ? 4 : 8,
+                            x: 0, y: fabPressed ? 2 : 4
+                        )
 
                     Image(systemName: "plus")
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(Color.white)
                 }
+                .scaleEffect(fabPressed ? 0.92 : 1.0)
+                .animation(.spring(response: 0.25, dampingFraction: 0.6), value: fabPressed)
             }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in if !fabPressed { fabPressed = true } }
+                    .onEnded { _ in fabPressed = false }
+            )
             .offset(y: -20)
+            .accessibilityLabel("Share food listing")
         }
         .sheet(isPresented: $showCreateListing) {
             CreateListingView()
-        }
-        .onChange(of: selectedTab) { _, newValue in
-            if newValue == 2 {
-                showCreateListing = true
-                selectedTab = 0 // Reset to feed
-            }
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
     }
 }

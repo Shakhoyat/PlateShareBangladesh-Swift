@@ -10,6 +10,8 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @StateObject private var viewModel = ProfileViewModel()
+    @State private var listingToDelete: FoodListing?
+    @State private var showSignOutConfirm = false
 
     var body: some View {
         NavigationStack {
@@ -43,6 +45,38 @@ struct ProfileView: View {
             }
             .navigationTitle("profile.title")
             .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .confirmationDialog(
+                "Delete this listing?",
+                isPresented: Binding(
+                    get: { listingToDelete != nil },
+                    set: { if !$0 { listingToDelete = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    PSHaptics.warning()
+                    if let listing = listingToDelete {
+                        Task { await viewModel.deleteListing(listing) }
+                    }
+                    listingToDelete = nil
+                }
+                Button("Cancel", role: .cancel) { listingToDelete = nil }
+            } message: {
+                Text("This cannot be undone.")
+            }
+            .confirmationDialog(
+                "Sign out of PlateShare BD?",
+                isPresented: $showSignOutConfirm,
+                titleVisibility: .visible
+            ) {
+                Button("Sign Out", role: .destructive) {
+                    PSHaptics.warning()
+                    authViewModel.signOut()
+                }
+                Button("Cancel", role: .cancel) {}
+            }
         }
     }
 
@@ -138,9 +172,11 @@ struct ProfileView: View {
             } else {
                 ForEach(viewModel.myListings) { listing in
                     MyListingRow(listing: listing) {
+                        PSHaptics.light()
                         Task { await viewModel.markListingTaken(listing) }
                     } onDelete: {
-                        Task { await viewModel.deleteListing(listing) }
+                        PSHaptics.warning()
+                        listingToDelete = listing
                     }
                 }
             }
@@ -169,7 +205,7 @@ struct ProfileView: View {
 
             // Sign Out
             Button {
-                authViewModel.signOut()
+                showSignOutConfirm = true
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "rectangle.portrait.and.arrow.right")

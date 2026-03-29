@@ -159,6 +159,18 @@ struct ListingDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                ShareLink(
+                    item: "\(listing.title)\nShared by \(listing.donorName)\nPickup: \(listing.pickupAddress)",
+                    subject: Text("Food available on PlateShare BD")
+                ) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             if !isOwnListing && listing.isAvailable {
                 VStack(spacing: 8) {
@@ -195,6 +207,9 @@ struct ListingDetailView: View {
                 NavigationStack {
                     ChatView(conversation: conversation, otherUserName: listing.donorName)
                 }
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(.regularMaterial)
             }
         }
         .sheet(isPresented: $isShowingRating) {
@@ -210,6 +225,8 @@ struct ListingDetailView: View {
                     .navigationBarTitleDisplayMode(.inline)
                 }
                 .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(.regularMaterial)
             }
         }
     }

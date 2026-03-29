@@ -34,8 +34,9 @@ struct ChatView: View {
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                 }
+                .scrollDismissesKeyboard(.interactively)
                 .onChange(of: viewModel.messages.count) { _, _ in
-                    withAnimation {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                         if let lastMessage = viewModel.messages.last {
                             proxy.scrollTo(lastMessage.id, anchor: .bottom)
                         }
@@ -51,12 +52,16 @@ struct ChatView: View {
                     .textFieldStyle(.plain)
                     .lineLimit(1...4)
                     .focused($isInputFocused)
+                    .submitLabel(.send)
+                    .onSubmit {
+                        sendWithHaptic()
+                    }
                     .padding(10)
                     .background(Color(.systemGray6))
                     .clipShape(RoundedRectangle(cornerRadius: 20))
 
                 Button {
-                    Task { await viewModel.sendMessage() }
+                    sendWithHaptic()
                 } label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.system(size: 32))
@@ -65,6 +70,7 @@ struct ChatView: View {
                             ? Color(.systemGray3)
                             : Color.psAccent
                         )
+                        .animation(.spring(response: 0.2, dampingFraction: 0.6), value: viewModel.messageText.isEmpty)
                 }
                 .disabled(viewModel.messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
@@ -74,6 +80,15 @@ struct ChatView: View {
         }
         .navigationTitle(otherUserName)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
+
+    private func sendWithHaptic() {
+        guard !viewModel.messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        PSHaptics.light()
+        Task { await viewModel.sendMessage() }
     }
 }
 

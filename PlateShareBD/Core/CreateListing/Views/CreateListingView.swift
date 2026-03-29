@@ -19,6 +19,7 @@ struct CreateListingView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+
                     // Photo Picker Section
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Food Photos")
@@ -221,8 +222,11 @@ struct CreateListingView: View {
                 }
                 .padding(20)
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("create.title")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .onChange(of: selectedPhotos) { _, newItems in
                 Task {
                     for item in newItems {
@@ -236,6 +240,7 @@ struct CreateListingView: View {
             }
             .onChange(of: viewModel.isSuccess) { _, success in
                 if success {
+                    PSHaptics.success()
                     showSuccessAlert = true
                 }
             }

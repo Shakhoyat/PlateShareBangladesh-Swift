@@ -10,7 +10,8 @@ import SwiftUI
 struct FeedView: View {
     @StateObject var viewModel = FeedViewModel()
     @EnvironmentObject var authViewModel: AuthViewModel
-    @State private var isFilterShowing = false
+    @State private var appeared = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         NavigationStack {
@@ -26,11 +27,19 @@ struct FeedView: View {
                             emptyStateView
                         } else {
                             LazyVStack(spacing: 16) {
-                                ForEach(viewModel.filteredListings) { listing in
+                                ForEach(Array(viewModel.filteredListings.enumerated()), id: \.element.id) { index, listing in
                                     NavigationLink(destination: ListingDetailView(listing: listing, currentUserId: authViewModel.currentUser?.id)) {
                                         ListingCardView(listing: listing)
                                     }
                                     .buttonStyle(.plain)
+                                    .opacity(appeared ? 1 : 0)
+                                    .offset(y: appeared || reduceMotion ? 0 : 24)
+                                    .animation(
+                                        reduceMotion ? .linear(duration: 0.1) :
+                                            .spring(response: 0.5, dampingFraction: 0.7)
+                                            .delay(Double(min(index, 6)) * 0.05),
+                                        value: appeared
+                                    )
                                 }
 
                                 if viewModel.isLoading {
@@ -43,7 +52,16 @@ struct FeedView: View {
                     }
                 }
                 .refreshable {
+                    PSHaptics.medium()
                     await viewModel.refresh()
+                }
+                .onAppear {
+                    appeared = false
+                    withAnimation { appeared = true }
+                }
+                .onChange(of: viewModel.listings.count) { _, _ in
+                    appeared = false
+                    withAnimation { appeared = true }
                 }
 
                 // Error banner overlays at top
@@ -59,6 +77,8 @@ struct FeedView: View {
             }
             .navigationTitle("feed.title")
             .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         }
     }
 
@@ -70,7 +90,10 @@ struct FeedView: View {
                     title: "All",
                     sfSymbol: "fork.knife",
                     isSelected: viewModel.selectedCategory == nil,
-                    action: { viewModel.setCategory(nil) }
+                    action: {
+                        PSHaptics.selection()
+                        viewModel.setCategory(nil)
+                    }
                 )
 
                 ForEach(FoodListing.FoodCategory.allCases, id: \.self) { category in
@@ -78,7 +101,10 @@ struct FeedView: View {
                         title: category.rawValue.capitalized,
                         sfSymbol: category.sfSymbol,
                         isSelected: viewModel.selectedCategory == category,
-                        action: { viewModel.setCategory(category) }
+                        action: {
+                            PSHaptics.selection()
+                            viewModel.setCategory(category)
+                        }
                     )
                 }
             }
@@ -126,7 +152,7 @@ struct CategoryChip: View {
             .background(isSelected ? Color.psAccent : Color(.systemGray6))
             .foregroundStyle(isSelected ? Color.white : Color.psTextPrimary)
             .clipShape(RoundedRectangle(cornerRadius: 20))
-            .animation(.easeInOut(duration: 0.2), value: isSelected)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
         }
     }
 }

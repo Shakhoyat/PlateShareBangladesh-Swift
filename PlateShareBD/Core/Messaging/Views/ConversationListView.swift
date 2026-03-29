@@ -26,12 +26,15 @@ struct ConversationListView: View {
                                 otherUserName: viewModel.getOtherUserName(for: conversation)
                             )
                         }
+                        .simultaneousGesture(TapGesture().onEnded { PSHaptics.selection() })
                     }
                     .listStyle(.plain)
                 }
             }
             .navigationTitle("messages.title")
             .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         }
     }
 
