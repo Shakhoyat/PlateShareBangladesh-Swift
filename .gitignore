@@ -15,6 +15,9 @@ Packages/
 # CocoaPods
 Pods/
 
+# Firebase — never commit service credentials
+GoogleService-Info.plist
+
 # Misc
 *.ipa
 *.dSYM.zip

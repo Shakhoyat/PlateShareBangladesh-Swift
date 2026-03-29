@@ -39,15 +39,15 @@ struct ConversationListView: View {
         VStack(spacing: 16) {
             Image(systemName: "bubble.left.and.bubble.right")
                 .font(.system(size: 50))
-                .foregroundColor(.psTextSecondary.opacity(0.4))
+                .foregroundStyle(Color.psTextSecondary.opacity(0.4))
 
             Text("messages.empty.title")
                 .font(.headline)
-                .foregroundColor(.psTextPrimary)
+                .foregroundStyle(Color.psTextPrimary)
 
             Text("messages.empty.subtitle")
                 .font(.subheadline)
-                .foregroundColor(.psTextSecondary)
+                .foregroundStyle(Color.psTextSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 40)
@@ -66,21 +66,21 @@ struct ConversationRowView: View {
                 HStack {
                     Text(otherUserName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.psTextPrimary)
+                        .foregroundStyle(Color.psTextPrimary)
 
                     Spacer()
 
                     if let date = conversation.lastMessageAt {
                         Text(date.timeAgo)
                             .font(.caption2)
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
                     }
                 }
 
                 HStack {
                     Text(conversation.lastMessage ?? "No messages yet")
                         .font(.caption)
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                         .lineLimit(1)
 
                     Spacer()
@@ -88,7 +88,7 @@ struct ConversationRowView: View {
                     if conversation.unreadCount > 0 {
                         Text("\(conversation.unreadCount)")
                             .font(.caption2.weight(.bold))
-                            .foregroundColor(.white)
+                            .foregroundStyle(Color.white)
                             .frame(width: 20, height: 20)
                             .background(Color.psAccent)
                             .clipShape(Circle())

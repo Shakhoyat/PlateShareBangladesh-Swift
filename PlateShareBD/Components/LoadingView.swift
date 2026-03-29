@@ -13,12 +13,12 @@ struct LoadingView: View {
     var body: some View {
         VStack(spacing: 20) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: .psAccent))
+                .tint(.psAccent)
                 .scaleEffect(1.5)
 
             Text(message)
                 .font(.subheadline)
-                .foregroundColor(.psTextSecondary)
+                .foregroundStyle(Color.psTextSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.psBgPrimary.ignoresSafeArea())

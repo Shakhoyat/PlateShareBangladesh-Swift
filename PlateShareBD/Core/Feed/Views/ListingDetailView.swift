@@ -14,6 +14,7 @@ struct ListingDetailView: View {
     @State private var isShowingRating = false
     @State private var conversation: PSConversation?
     @State private var isLoadingChat = false
+    @State private var chatError: String?
     @Environment(\.dismiss) private var dismiss
 
     var isOwnListing: Bool {
@@ -60,15 +61,15 @@ struct ListingDetailView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(listing.title)
                                 .font(.title2.bold())
-                                .foregroundColor(.psTextPrimary)
+                                .foregroundStyle(Color.psTextPrimary)
 
                             HStack(spacing: 4) {
                                 Image(systemName: listing.category.sfSymbol)
                                     .font(.subheadline)
-                                    .foregroundColor(.psAccent)
+                                    .foregroundStyle(Color.psAccent)
                                 Text(listing.category.rawValue.capitalized)
                                     .font(.subheadline)
-                                    .foregroundColor(.psTextSecondary)
+                                    .foregroundStyle(Color.psTextSecondary)
                             }
                         }
                         Spacer()
@@ -98,10 +99,10 @@ struct ListingDetailView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Description")
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.psTextPrimary)
+                                .foregroundStyle(Color.psTextPrimary)
                             Text(description)
                                 .font(.body)
-                                .foregroundColor(.psTextSecondary)
+                                .foregroundStyle(Color.psTextSecondary)
                         }
                     }
 
@@ -109,7 +110,7 @@ struct ListingDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Shared by")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.psTextPrimary)
+                            .foregroundStyle(Color.psTextPrimary)
 
                         HStack(spacing: 12) {
                             PSAvatarView(imageURL: nil, size: 44, showBadge: true)
@@ -117,10 +118,10 @@ struct ListingDetailView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(listing.donorName)
                                     .font(.subheadline.weight(.medium))
-                                    .foregroundColor(.psTextPrimary)
+                                    .foregroundStyle(Color.psTextPrimary)
                                 Text("Verified Donor")
                                     .font(.caption)
-                                    .foregroundColor(.psAccent)
+                                    .foregroundStyle(Color.psAccent)
                             }
 
                             Spacer()
@@ -133,24 +134,24 @@ struct ListingDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Pickup Location")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.psTextPrimary)
+                            .foregroundStyle(Color.psTextPrimary)
 
                         HStack(spacing: 8) {
                             Image(systemName: "mappin.circle.fill")
-                                .foregroundColor(.psSecondary)
+                                .foregroundStyle(Color.psSecondary)
                             Text(listing.pickupAddress)
                                 .font(.body)
-                                .foregroundColor(.psTextSecondary)
+                                .foregroundStyle(Color.psTextSecondary)
                         }
                     }
 
                     // Post Date
                     HStack(spacing: 4) {
                         Image(systemName: "calendar")
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
                         Text("Posted \(listing.createdAt.timeAgo)")
                             .font(.caption)
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
                     }
                     .padding(.top, 4)
                 }
@@ -160,14 +161,21 @@ struct ListingDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) {
             if !isOwnListing && listing.isAvailable {
-                // Message Donor button
-                PSButton(
-                    "Message Donor",
-                    isLoading: isLoadingChat
-                ) {
-                    Task { await startChat() }
+                VStack(spacing: 8) {
+                    if let error = chatError {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(Color.psError)
+                            .multilineTextAlignment(.center)
+                    }
+                    PSButton(
+                        "Message Donor",
+                        isLoading: isLoadingChat
+                    ) {
+                        Task { await startChat() }
+                    }
+                    .accessibilityLabel("Message \(listing.donorName)")
                 }
-                .accessibilityLabel("Message \(listing.donorName)")
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
                 .background(.ultraThinMaterial)
@@ -212,10 +220,10 @@ struct ListingDetailView: View {
             VStack(spacing: 8) {
                 Image(systemName: "fork.knife")
                     .font(.system(size: 40))
-                    .foregroundColor(.psTextSecondary.opacity(0.3))
+                    .foregroundStyle(Color.psTextSecondary.opacity(0.3))
                 Text("No photo available")
                     .font(.caption)
-                    .foregroundColor(.psTextSecondary.opacity(0.5))
+                    .foregroundStyle(Color.psTextSecondary.opacity(0.5))
             }
         }
     }
@@ -223,6 +231,7 @@ struct ListingDetailView: View {
     private func startChat() async {
         guard let currentUID = currentUserId else { return }
         isLoadingChat = true
+        chatError = nil
 
         do {
             let conv = try await FirestoreService.shared.getOrCreateConversation(
@@ -233,7 +242,7 @@ struct ListingDetailView: View {
             self.conversation = conv
             self.isShowingChat = true
         } catch {
-            // Handle error silently for now
+            self.chatError = "Could not open chat. Please try again."
         }
         isLoadingChat = false
     }

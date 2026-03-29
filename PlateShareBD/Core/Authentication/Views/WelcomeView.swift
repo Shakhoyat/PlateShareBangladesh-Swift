@@ -52,16 +52,16 @@ struct WelcomeView: View {
 
                         Text("PlateShare BD")
                             .font(.system(size: 36, weight: .bold, design: .rounded))
-                            .foregroundColor(.psTextPrimary)
+                            .foregroundStyle(Color.psTextPrimary)
 
                         Text("খাবার ভাগ করুন, ভালোবাসা ছড়িয়ে দিন")
                             .font(.subheadline)
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
                             .multilineTextAlignment(.center)
 
                         Text("Share food, spread love")
                             .font(.caption)
-                            .foregroundColor(.psTextSecondary.opacity(0.7))
+                            .foregroundStyle(Color.psTextSecondary.opacity(0.7))
                     }
 
                     // Feature highlights
@@ -91,15 +91,15 @@ struct WelcomeView: View {
                                     endPoint: .trailing
                                 )
                             )
-                            .foregroundColor(.white)
-                            .cornerRadius(16)
+                            .foregroundStyle(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                             .shadow(color: .psAccent.opacity(0.4), radius: 12, x: 0, y: 6)
                         }
                         .accessibilityLabel("Continue with email to sign in or create account")
 
                         Text("By continuing, you agree to our Terms of Service")
                             .font(.caption2)
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
                     }
                     .padding(.horizontal, 24)
                     .padding(.bottom, 32)
@@ -122,18 +122,18 @@ struct FeatureRow: View {
         HStack(spacing: 14) {
             Image(systemName: icon)
                 .font(.system(size: 22))
-                .foregroundColor(color)
+                .foregroundStyle(color)
                 .frame(width: 44, height: 44)
                 .background(color.opacity(0.12))
-                .cornerRadius(12)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.psTextPrimary)
+                    .foregroundStyle(Color.psTextPrimary)
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundColor(.psTextSecondary)
+                    .foregroundStyle(Color.psTextSecondary)
             }
 
             Spacer()

@@ -50,7 +50,7 @@ struct ListingCardView: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(.ultraThinMaterial)
-                .cornerRadius(8)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .padding(8)
             }
 
@@ -58,17 +58,17 @@ struct ListingCardView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(listing.title)
                     .font(.headline)
-                    .foregroundColor(.psTextPrimary)
+                    .foregroundStyle(Color.psTextPrimary)
                     .lineLimit(2)
 
                 // Donor info
                 HStack(spacing: 6) {
                     Image(systemName: "person.circle.fill")
                         .font(.caption)
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                     Text(listing.donorName)
                         .font(.caption)
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                 }
 
                 // Location & time row
@@ -76,10 +76,10 @@ struct ListingCardView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "mappin.circle.fill")
                             .font(.caption2)
-                            .foregroundColor(.psSecondary)
+                            .foregroundStyle(Color.psSecondary)
                         Text(listing.pickupAddress.truncated(to: 25))
                             .font(.caption2)
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
                     }
 
                     Spacer()
@@ -87,10 +87,10 @@ struct ListingCardView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "clock")
                             .font(.caption2)
-                            .foregroundColor(listing.expiresAt.isExpired ? .psError : .psTextSecondary)
+                            .foregroundStyle(listing.expiresAt.isExpired ? Color.psError : Color.psTextSecondary)
                         Text(listing.expiresAt.timeAgo)
                             .font(.caption2)
-                            .foregroundColor(listing.expiresAt.isExpired ? .psError : .psTextSecondary)
+                            .foregroundStyle(listing.expiresAt.isExpired ? Color.psError : Color.psTextSecondary)
                     }
                 }
 
@@ -105,7 +105,7 @@ struct ListingCardView: View {
             .padding(12)
         }
         .background(Color.psBgCard)
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(listing.title) by \(listing.donorName), \(listing.quantity), pickup at \(listing.pickupAddress)")
@@ -117,10 +117,10 @@ struct ListingCardView: View {
             VStack(spacing: 4) {
                 Image(systemName: "fork.knife")
                     .font(.title)
-                    .foregroundColor(.psTextSecondary.opacity(0.4))
+                    .foregroundStyle(Color.psTextSecondary.opacity(0.4))
                 Text("No photo")
                     .font(.caption2)
-                    .foregroundColor(.psTextSecondary.opacity(0.4))
+                    .foregroundStyle(Color.psTextSecondary.opacity(0.4))
             }
         }
     }

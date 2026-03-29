@@ -29,10 +29,10 @@ struct ProfileSetupView: View {
                 VStack(spacing: 8) {
                     Text("Set Up Your Profile")
                         .font(.title2.bold())
-                        .foregroundColor(.psTextPrimary)
+                        .foregroundStyle(Color.psTextPrimary)
                     Text("আপনার প্রোফাইল সেট আপ করুন")
                         .font(.subheadline)
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                 }
                 .padding(.top, 20)
 
@@ -50,12 +50,12 @@ struct ProfileSetupView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 100, height: 100)
-                                .foregroundColor(.psTextSecondary.opacity(0.3))
+                                .foregroundStyle(Color.psTextSecondary.opacity(0.3))
                         }
 
                         Image(systemName: "camera.circle.fill")
                             .font(.system(size: 28))
-                            .foregroundColor(.psAccent)
+                            .foregroundStyle(Color.psAccent)
                             .background(Circle().fill(.white).frame(width: 24, height: 24))
                     }
                 }
@@ -72,7 +72,7 @@ struct ProfileSetupView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Your Name")
                         .font(.caption.weight(.medium))
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                     PSTextField(placeholder: "Enter your name", text: $displayName, icon: "person.fill")
                 }
 
@@ -80,7 +80,7 @@ struct ProfileSetupView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Your Area / মহল্লা")
                         .font(.caption.weight(.medium))
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
 
                     PSTextField(placeholder: "Enter your area", text: $area, icon: "mappin.and.ellipse")
 
@@ -95,8 +95,8 @@ struct ProfileSetupView: View {
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 6)
                                     .background(area == areaName ? Color.psAccent : Color(.systemGray6))
-                                    .foregroundColor(area == areaName ? .white : .psTextPrimary)
-                                    .cornerRadius(16)
+                                    .foregroundStyle(area == areaName ? Color.white : Color.psTextPrimary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
                             }
                         }
                     }
@@ -119,7 +119,7 @@ struct ProfileSetupView: View {
                 if let error = authViewModel.errorMessage {
                     Text(error)
                         .font(.caption)
-                        .foregroundColor(.psError)
+                        .foregroundStyle(Color.psError)
                         .multilineTextAlignment(.center)
                 }
             }

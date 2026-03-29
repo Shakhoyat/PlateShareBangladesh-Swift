@@ -31,7 +31,7 @@ struct PSButton: View {
             HStack(spacing: 8) {
                 if isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: foregroundColor))
+                        .tint(foregroundColor)
                         .scaleEffect(0.8)
                 }
                 Text(title)
@@ -40,8 +40,8 @@ struct PSButton: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
             .background(backgroundColor)
-            .foregroundColor(foregroundColor)
-            .cornerRadius(12)
+            .foregroundStyle(foregroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .shadow(color: backgroundColor.opacity(0.3), radius: 8, x: 0, y: 4)
         }
         .disabled(isLoading)

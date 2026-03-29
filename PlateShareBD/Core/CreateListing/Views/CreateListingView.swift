@@ -23,7 +23,7 @@ struct CreateListingView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Food Photos")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.psTextPrimary)
+                            .foregroundStyle(Color.psTextPrimary)
 
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
@@ -40,10 +40,10 @@ struct CreateListingView: View {
                                             Text("Add Photo")
                                                 .font(.caption2)
                                         }
-                                        .foregroundColor(.psAccent)
+                                        .foregroundStyle(Color.psAccent)
                                         .frame(width: 100, height: 100)
                                         .background(Color.psAccent.opacity(0.1))
-                                        .cornerRadius(12)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 12)
                                                 .stroke(Color.psAccent.opacity(0.3), style: StrokeStyle(lineWidth: 2, dash: [6]))
@@ -58,14 +58,13 @@ struct CreateListingView: View {
                                             .resizable()
                                             .scaledToFill()
                                             .frame(width: 100, height: 100)
-                                            .cornerRadius(12)
-                                            .clipped()
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
 
                                         Button {
                                             viewModel.removeImage(at: index)
                                         } label: {
                                             Image(systemName: "xmark.circle.fill")
-                                                .foregroundColor(.white)
+                                                .foregroundStyle(Color.white)
                                                 .background(Circle().fill(.black.opacity(0.5)))
                                         }
                                         .offset(x: 4, y: -4)
@@ -79,7 +78,7 @@ struct CreateListingView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Food Title *")
                             .font(.caption.weight(.medium))
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
                         PSTextField(
                             placeholder: "e.g., Wedding Biryani - Fresh & Hot",
                             text: $viewModel.title,
@@ -91,7 +90,7 @@ struct CreateListingView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Category")
                             .font(.caption.weight(.medium))
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
 
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
@@ -108,8 +107,8 @@ struct CreateListingView: View {
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 8)
                                         .background(viewModel.category == category ? Color.psAccent : Color(.systemGray6))
-                                        .foregroundColor(viewModel.category == category ? .white : .psTextPrimary)
-                                        .cornerRadius(20)
+                                        .foregroundStyle(viewModel.category == category ? Color.white : Color.psTextPrimary)
+                                        .clipShape(RoundedRectangle(cornerRadius: 20))
                                     }
                                 }
                             }
@@ -120,12 +119,12 @@ struct CreateListingView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Description (optional)")
                             .font(.caption.weight(.medium))
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
                         TextEditor(text: $viewModel.description)
                             .frame(height: 80)
                             .padding(8)
                             .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color(.systemGray4), lineWidth: 1)
@@ -136,7 +135,7 @@ struct CreateListingView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Quantity *")
                             .font(.caption.weight(.medium))
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
                         PSTextField(
                             placeholder: "e.g., Serves 10 people",
                             text: $viewModel.quantity,
@@ -148,29 +147,29 @@ struct CreateListingView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Pickup Address *")
                             .font(.caption.weight(.medium))
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
 
                         Button {
                             showLocationPicker = true
                         } label: {
                             HStack(spacing: 12) {
                                 Image(systemName: "mappin.and.ellipse")
-                                    .foregroundColor(.psTextSecondary)
+                                    .foregroundStyle(Color.psTextSecondary)
                                     .frame(width: 20)
                                 Text(viewModel.pickupAddress.isEmpty
                                      ? "Tap to select on map"
                                      : viewModel.pickupAddress)
                                     .font(.body)
-                                    .foregroundColor(viewModel.pickupAddress.isEmpty ? .psTextSecondary : .psTextPrimary)
+                                    .foregroundStyle(viewModel.pickupAddress.isEmpty ? Color.psTextSecondary : Color.psTextPrimary)
                                     .lineLimit(2)
                                     .multilineTextAlignment(.leading)
                                 Spacer()
                                 Image(systemName: "map.fill")
-                                    .foregroundColor(.psAccent)
+                                    .foregroundStyle(Color.psAccent)
                             }
                             .padding(14)
                             .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color(.systemGray4), lineWidth: 1)
@@ -183,7 +182,7 @@ struct CreateListingView: View {
                         Toggle(isOn: $viewModel.isHalal) {
                             HStack(spacing: 6) {
                                 Image(systemName: "checkmark.seal.fill")
-                                    .foregroundColor(.psAccent)
+                                    .foregroundStyle(Color.psAccent)
                                 Text("Halal")
                                     .font(.subheadline.weight(.medium))
                             }
@@ -195,7 +194,7 @@ struct CreateListingView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Available for (hours)")
                             .font(.caption.weight(.medium))
-                            .foregroundColor(.psTextSecondary)
+                            .foregroundStyle(Color.psTextSecondary)
 
                         Picker("Expiry", selection: $viewModel.expiryHours) {
                             ForEach([2, 4, 6, 8, 12, 24], id: \.self) { hours in
@@ -216,7 +215,7 @@ struct CreateListingView: View {
                     if let error = viewModel.errorMessage {
                         Text(error)
                             .font(.caption)
-                            .foregroundColor(.psError)
+                            .foregroundStyle(Color.psError)
                             .multilineTextAlignment(.center)
                     }
                 }

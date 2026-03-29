@@ -98,14 +98,14 @@ struct LocationPickerView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .background(address.isEmpty ? Color.gray : Color.psAccent)
-                                .foregroundColor(.white)
-                                .cornerRadius(12)
+                                .foregroundStyle(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .disabled(address.isEmpty)
                     }
                     .padding(16)
                     .background(.ultraThinMaterial)
-                    .cornerRadius(16)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                     .padding(.horizontal, 16)
                     .padding(.bottom, 8)
                 }

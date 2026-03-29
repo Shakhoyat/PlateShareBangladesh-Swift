@@ -65,7 +65,7 @@ struct MainTabView: View {
 
                     Image(systemName: "plus")
                         .font(.title2.weight(.semibold))
-                        .foregroundColor(.white)
+                        .foregroundStyle(Color.white)
                 }
             }
             .offset(y: -20)

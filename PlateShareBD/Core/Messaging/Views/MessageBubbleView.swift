@@ -18,7 +18,7 @@ struct MessageBubbleView: View {
             VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 4) {
                 Text(message.text ?? "")
                     .font(.body)
-                    .foregroundColor(isFromCurrentUser ? .white : .psTextPrimary)
+                    .foregroundStyle(isFromCurrentUser ? Color.white : Color.psTextPrimary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .background(
@@ -39,7 +39,7 @@ struct MessageBubbleView: View {
 
                 Text(message.createdAt.chatTime)
                     .font(.system(size: 10))
-                    .foregroundColor(.psTextSecondary)
+                    .foregroundStyle(Color.psTextSecondary)
                     .padding(.horizontal, 4)
             }
 

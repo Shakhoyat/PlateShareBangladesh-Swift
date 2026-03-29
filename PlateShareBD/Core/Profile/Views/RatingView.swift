@@ -25,13 +25,13 @@ struct RatingView: View {
             VStack(spacing: 6) {
                 Text(NSLocalizedString("rating.title", comment: ""))
                     .font(.title3.bold())
-                    .foregroundColor(.psTextPrimary)
+                    .foregroundStyle(Color.psTextPrimary)
                 Text(NSLocalizedString("rating.subtitle", comment: ""))
                     .font(.subheadline)
-                    .foregroundColor(.psTextSecondary)
+                    .foregroundStyle(Color.psTextSecondary)
                 Text(donorName)
                     .font(.headline)
-                    .foregroundColor(.psAccent)
+                    .foregroundStyle(Color.psAccent)
             }
 
             // Star selector
@@ -39,7 +39,7 @@ struct RatingView: View {
                 ForEach(1...5, id: \.self) { star in
                     Image(systemName: star <= selectedScore ? "star.fill" : "star")
                         .font(.title)
-                        .foregroundColor(star <= selectedScore ? .psSecondary : .psTextSecondary.opacity(0.3))
+                        .foregroundStyle(star <= selectedScore ? Color.psSecondary : Color.psTextSecondary.opacity(0.3))
                         .onTapGesture { selectedScore = star }
                         .accessibilityLabel("\(star) star")
                 }
@@ -54,7 +54,7 @@ struct RatingView: View {
 
             if didSubmit {
                 Label(NSLocalizedString("rating.thanks", comment: ""), systemImage: "checkmark.circle.fill")
-                    .foregroundColor(.psSuccess)
+                    .foregroundStyle(Color.psSuccess)
                     .font(.subheadline.weight(.medium))
             }
 

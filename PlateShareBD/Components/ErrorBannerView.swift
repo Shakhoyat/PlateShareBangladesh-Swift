@@ -15,10 +15,10 @@ struct ErrorBannerView: View {
         if isPresented {
             HStack(spacing: 10) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.white)
+                    .foregroundStyle(Color.white)
                 Text(message)
                     .font(.caption)
-                    .foregroundColor(.white)
+                    .foregroundStyle(Color.white)
                     .lineLimit(2)
                 Spacer()
                 Button {
@@ -26,12 +26,12 @@ struct ErrorBannerView: View {
                 } label: {
                     Image(systemName: "xmark")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundStyle(Color.white.opacity(0.8))
                 }
             }
             .padding(12)
             .background(Color.psError.opacity(0.9))
-            .cornerRadius(10)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal)
             .transition(.move(edge: .top).combined(with: .opacity))
             .onAppear {

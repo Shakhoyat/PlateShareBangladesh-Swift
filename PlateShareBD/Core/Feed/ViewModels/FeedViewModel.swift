@@ -7,7 +7,6 @@
 
 import Foundation
 import FirebaseFirestore
-import Combine
 
 @MainActor
 final class FeedViewModel: ObservableObject {
@@ -16,7 +15,7 @@ final class FeedViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var selectedCategory: FoodListing.FoodCategory?
 
-    private var cancellables = Set<AnyCancellable>()
+    private var listingsListener: ListenerRegistration?
     private let firestoreService: FirestoreService
 
     var filteredListings: [FoodListing] {
@@ -29,17 +28,35 @@ final class FeedViewModel: ObservableObject {
         startListening()
     }
 
-    // Real-time listener for feed — primary data source
+    // Real-time listener for feed — properly cancelled on deinit
     private func startListening() {
         isLoading = true
-        firestoreService.listingsPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] listings in
-                self?.listings = listings
-                self?.isLoading = false
-                self?.errorMessage = nil
+        listingsListener?.remove()
+
+        listingsListener = Firestore.firestore()
+            .collection(FirestoreKeys.Collections.listings)
+            .order(by: FirestoreKeys.ListingFields.createdAt, descending: true)
+            .limit(to: 50)
+            .addSnapshotListener { [weak self] snapshot, error in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    if let error = error {
+                        self.errorMessage = error.localizedDescription
+                        self.isLoading = false
+                        return
+                    }
+                    guard let documents = snapshot?.documents else {
+                        self.isLoading = false
+                        return
+                    }
+                    let now = Date()
+                    self.listings = documents
+                        .compactMap { try? $0.data(as: FoodListing.self) }
+                        .filter { $0.isAvailable && $0.expiresAt > now }
+                    self.isLoading = false
+                    self.errorMessage = nil
+                }
             }
-            .store(in: &cancellables)
     }
 
     // Pull-to-refresh: one-shot fetch from server
@@ -55,5 +72,9 @@ final class FeedViewModel: ObservableObject {
 
     func setCategory(_ category: FoodListing.FoodCategory?) {
         selectedCategory = category
+    }
+
+    deinit {
+        listingsListener?.remove()
     }
 }

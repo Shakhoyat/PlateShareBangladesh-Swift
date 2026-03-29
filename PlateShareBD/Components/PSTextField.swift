@@ -18,7 +18,7 @@ struct PSTextField: View {
         HStack(spacing: 12) {
             if let icon = icon {
                 Image(systemName: icon)
-                    .foregroundColor(.psTextSecondary)
+                    .foregroundStyle(Color.psTextSecondary)
                     .frame(width: 20)
             }
 
@@ -31,7 +31,7 @@ struct PSTextField: View {
         }
         .padding(14)
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color(.systemGray4), lineWidth: 1)

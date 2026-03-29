@@ -34,11 +34,11 @@ struct EmailAuthView: View {
 
                     Text(isSignUp ? "Create Account" : "Welcome Back")
                         .font(.title2.bold())
-                        .foregroundColor(.psTextPrimary)
+                        .foregroundStyle(Color.psTextPrimary)
 
                     Text(isSignUp ? "অ্যাকাউন্ট তৈরি করুন" : "আবার স্বাগতম")
                         .font(.subheadline)
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                 }
                 .padding(.top, 20)
 
@@ -52,8 +52,8 @@ struct EmailAuthView: View {
                     )
                     .focused($focusedField, equals: .email)
                     .textContentType(.emailAddress)
-                    .autocapitalization(.none)
-                    .disableAutocorrection(true)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
 
                     PSTextField(
                         placeholder: "Password (min 6 characters)",
@@ -89,21 +89,21 @@ struct EmailAuthView: View {
                 } label: {
                     Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
                         .font(.footnote.weight(.medium))
-                        .foregroundColor(.psAccent)
+                        .foregroundStyle(Color.psAccent)
                 }
 
                 // Error display
                 if let error = authViewModel.errorMessage {
                     HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.psError)
+                            .foregroundStyle(Color.psError)
                         Text(error)
                             .font(.caption)
-                            .foregroundColor(.psError)
+                            .foregroundStyle(Color.psError)
                     }
                     .padding(12)
                     .background(Color.psError.opacity(0.1))
-                    .cornerRadius(8)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
 
                 Spacer()

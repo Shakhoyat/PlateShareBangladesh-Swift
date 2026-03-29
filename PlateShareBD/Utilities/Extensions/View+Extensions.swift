@@ -12,7 +12,7 @@ extension View {
     func cardStyle() -> some View {
         self
             .background(Color.psBgCard)
-            .cornerRadius(12)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
     }
 

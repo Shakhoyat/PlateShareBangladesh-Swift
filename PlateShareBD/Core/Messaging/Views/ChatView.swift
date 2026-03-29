@@ -53,7 +53,7 @@ struct ChatView: View {
                     .focused($isInputFocused)
                     .padding(10)
                     .background(Color(.systemGray6))
-                    .cornerRadius(20)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
 
                 Button {
                     Task { await viewModel.sendMessage() }

@@ -8,7 +8,6 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
-import Combine
 
 enum AppError: LocalizedError {
     case notAuthenticated
@@ -66,30 +65,7 @@ final class FirestoreService {
             .filter { $0.isAvailable && $0.expiresAt > now }
     }
 
-    // Real-time listener for feed (single-field query — no composite index needed)
-    func listingsPublisher() -> AnyPublisher<[FoodListing], Never> {
-        let subject = PassthroughSubject<[FoodListing], Never>()
-
-        db.collection(FirestoreKeys.Collections.listings)
-            .order(by: FirestoreKeys.ListingFields.createdAt, descending: true)
-            .limit(to: 50)
-            .addSnapshotListener { snapshot, error in
-                if let error = error {
-                    print("[FirestoreService] Listings listener error: \(error.localizedDescription)")
-                    return
-                }
-                guard let documents = snapshot?.documents else { return }
-                let now = Date()
-                let listings = documents
-                    .compactMap { try? $0.data(as: FoodListing.self) }
-                    .filter { $0.isAvailable && $0.expiresAt > now }
-                subject.send(listings)
-            }
-
-        return subject.eraseToAnyPublisher()
-    }
-
-    // Mark listing as taken
+// Mark listing as taken
     func markListingTaken(listingId: String) async throws {
         try await db.collection(FirestoreKeys.Collections.listings).document(listingId)
             .updateData([FirestoreKeys.ListingFields.isAvailable: false])
@@ -189,24 +165,7 @@ final class FirestoreService {
         try await batch.commit()
     }
 
-    // Real-time messages listener
-    func messagesPublisher(conversationId: String) -> AnyPublisher<[PSMessage], Never> {
-        let subject = PassthroughSubject<[PSMessage], Never>()
-
-        db.collection(FirestoreKeys.Collections.conversations)
-            .document(conversationId)
-            .collection(FirestoreKeys.Collections.messages)
-            .order(by: FirestoreKeys.MessageFields.createdAt)
-            .addSnapshotListener { snapshot, _ in
-                guard let documents = snapshot?.documents else { return }
-                let messages = documents.compactMap { try? $0.data(as: PSMessage.self) }
-                subject.send(messages)
-            }
-
-        return subject.eraseToAnyPublisher()
-    }
-
-    // Fetch user conversations (single-field query — no composite index needed)
+// Fetch user conversations (single-field query — no composite index needed)
     func fetchConversations(userId: String) async throws -> [PSConversation] {
         let snapshot = try await db.collection(FirestoreKeys.Collections.conversations)
             .whereField(FirestoreKeys.ConversationFields.participantIds, arrayContains: userId)

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find . -not -path */.* -type d)",
+      "Bash(grep -E '\\\\.\\(swift|plist|xcconfig|pbxproj|strings|storyboard|json|md|txt|yml|yaml\\)$')"
+    ]
+  }
+}

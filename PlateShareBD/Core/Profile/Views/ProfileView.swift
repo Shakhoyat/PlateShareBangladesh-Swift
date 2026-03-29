@@ -58,15 +58,15 @@ struct ProfileView: View {
             VStack(spacing: 4) {
                 Text(viewModel.user?.displayName ?? NSLocalizedString("profile.loading", comment: ""))
                     .font(.title3.weight(.bold))
-                    .foregroundColor(.psTextPrimary)
+                    .foregroundStyle(Color.psTextPrimary)
 
                 HStack(spacing: 4) {
                     Image(systemName: "mappin.circle.fill")
                         .font(.caption)
-                        .foregroundColor(.psSecondary)
+                        .foregroundStyle(Color.psSecondary)
                     Text(viewModel.user?.area ?? "")
                         .font(.subheadline)
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                 }
             }
 
@@ -76,18 +76,18 @@ struct ProfileView: View {
                     ForEach(1...5, id: \.self) { star in
                         Image(systemName: star <= Int(rating) ? "star.fill" : "star")
                             .font(.caption)
-                            .foregroundColor(.psSecondary)
+                            .foregroundStyle(Color.psSecondary)
                     }
                     Text(String(format: "%.1f", rating))
                         .font(.caption.weight(.medium))
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                 }
             }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
         .background(Color.psBgCard)
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
     }
 
@@ -120,21 +120,21 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("profile.my_listings")
                 .font(.headline)
-                .foregroundColor(.psTextPrimary)
+                .foregroundStyle(Color.psTextPrimary)
 
             if viewModel.myListings.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "tray")
                         .font(.title2)
-                        .foregroundColor(.psTextSecondary.opacity(0.4))
+                        .foregroundStyle(Color.psTextSecondary.opacity(0.4))
                     Text("profile.no_listings")
                         .font(.subheadline)
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 24)
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 ForEach(viewModel.myListings) { listing in
                     MyListingRow(listing: listing) {
@@ -173,10 +173,10 @@ struct ProfileView: View {
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "rectangle.portrait.and.arrow.right")
-                        .foregroundColor(.psError)
+                        .foregroundStyle(Color.psError)
                         .frame(width: 24)
                     Text("profile.sign_out")
-                        .foregroundColor(.psError)
+                        .foregroundStyle(Color.psError)
                     Spacer()
                 }
                 .padding(.vertical, 14)
@@ -184,7 +184,7 @@ struct ProfileView: View {
             }
         }
         .background(Color.psBgCard)
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
     }
 }
@@ -201,20 +201,20 @@ struct StatCard: View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(color)
+                .foregroundStyle(color)
 
             Text(value)
                 .font(.title2.weight(.bold))
-                .foregroundColor(.psTextPrimary)
+                .foregroundStyle(Color.psTextPrimary)
 
             Text(label)
                 .font(.caption2)
-                .foregroundColor(.psTextSecondary)
+                .foregroundStyle(Color.psTextSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
         .background(Color.psBgCard)
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
     }
 }
@@ -229,15 +229,15 @@ struct MyListingRow: View {
             // Category icon
             Image(systemName: listing.category.sfSymbol)
                 .font(.title3)
-                .foregroundColor(.psAccent)
+                .foregroundStyle(Color.psAccent)
                 .frame(width: 44, height: 44)
                 .background(Color.psAccent.opacity(0.1))
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(listing.title)
                     .font(.subheadline.weight(.medium))
-                    .foregroundColor(.psTextPrimary)
+                    .foregroundStyle(Color.psTextPrimary)
                     .lineLimit(1)
 
                 HStack(spacing: 4) {
@@ -247,7 +247,7 @@ struct MyListingRow: View {
                     )
                     Text(listing.createdAt.timeAgo)
                         .font(.caption2)
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                 }
             }
 
@@ -259,13 +259,13 @@ struct MyListingRow: View {
                     Button("Delete", role: .destructive, action: onDelete)
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .foregroundColor(.psTextSecondary)
+                        .foregroundStyle(Color.psTextSecondary)
                 }
             }
         }
         .padding(12)
         .background(Color.psBgCard)
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
     }
 }
@@ -278,18 +278,18 @@ struct SettingsRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundColor(.psAccent)
+                .foregroundStyle(Color.psAccent)
                 .frame(width: 24)
             Text(title)
                 .font(.subheadline)
-                .foregroundColor(.psTextPrimary)
+                .foregroundStyle(Color.psTextPrimary)
             Spacer()
             Text(value)
                 .font(.caption)
-                .foregroundColor(.psTextSecondary)
+                .foregroundStyle(Color.psTextSecondary)
             Image(systemName: "chevron.right")
                 .font(.caption2)
-                .foregroundColor(.psTextSecondary)
+                .foregroundStyle(Color.psTextSecondary)
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 16)

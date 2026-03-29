@@ -77,7 +77,7 @@ struct MapView: View {
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
                             .background(Color.psError.opacity(0.9))
-                            .cornerRadius(8)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                             .padding(.top, 4)
                     }
 
@@ -88,7 +88,7 @@ struct MapView: View {
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
                         .background(.ultraThinMaterial)
-                        .cornerRadius(20)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
                         .padding(.top, 8)
 
                     Spacer()
@@ -203,7 +203,7 @@ struct MapSearchBar: View {
             }
             .padding(10)
             .background(.ultraThinMaterial)
-            .cornerRadius(12)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 }
@@ -257,14 +257,14 @@ struct RadiusSelector: View {
         VStack(spacing: 8) {
             HStack {
                 Image(systemName: "scope")
-                    .foregroundColor(.psAccent)
+                    .foregroundStyle(Color.psAccent)
                 Text("Radius: \(String(format: "%.1f", selectedRadius)) km")
                     .font(.subheadline.weight(.medium))
-                    .foregroundColor(.psTextPrimary)
+                    .foregroundStyle(Color.psTextPrimary)
                 Spacer()
                 Text("\(Int(selectedRadius * 1000))m")
                     .font(.caption)
-                    .foregroundColor(.psTextSecondary)
+                    .foregroundStyle(Color.psTextSecondary)
             }
 
             Slider(
@@ -276,7 +276,7 @@ struct RadiusSelector: View {
         }
         .padding(16)
         .background(.ultraThinMaterial)
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
     }
 }

@@ -91,15 +91,15 @@ struct FeedView: View {
         VStack(spacing: 16) {
             Image(systemName: "tray")
                 .font(.system(size: 50))
-                .foregroundColor(.psTextSecondary.opacity(0.4))
+                .foregroundStyle(Color.psTextSecondary.opacity(0.4))
 
             Text("feed.empty.title")
                 .font(.headline)
-                .foregroundColor(.psTextPrimary)
+                .foregroundStyle(Color.psTextPrimary)
 
             Text("feed.empty.subtitle")
                 .font(.subheadline)
-                .foregroundColor(.psTextSecondary)
+                .foregroundStyle(Color.psTextSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(.top, 80)
@@ -124,8 +124,8 @@ struct CategoryChip: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(isSelected ? Color.psAccent : Color(.systemGray6))
-            .foregroundColor(isSelected ? .white : .psTextPrimary)
-            .cornerRadius(20)
+            .foregroundStyle(isSelected ? Color.white : Color.psTextPrimary)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
             .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
     }
