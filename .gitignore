@@ -16,7 +16,6 @@ Packages/
 Pods/
 
 # Firebase — never commit service credentials
-GoogleService-Info.plist
 
 # Misc
 *.ipa
