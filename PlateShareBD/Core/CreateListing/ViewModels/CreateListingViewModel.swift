@@ -63,17 +63,16 @@ final class CreateListingViewModel: ObservableObject {
                 donorName = Auth.auth().currentUser?.displayName ?? "Anonymous"
             }
 
-            // Upload images on a background thread to avoid freezing the UI.
-            // Individual failures are non-fatal — listing is created with whatever
-            // uploads succeeded, and a warning is shown for failures.
+            // Upload images — URLSession is already async so this never blocks the UI.
+            // Individual failures are non-fatal; listing is created with whatever
+            // uploads succeeded, and a warning is shown for any failures.
             var imageURLs: [String] = []
             var failedUploads = 0
             for image in selectedImages {
-                if let url = try? await Task.detached(priority: .userInitiated) {
-                    try await self.storageService.uploadFoodImage(image, userId: currentUID, listingId: listingId)
-                }.value {
+                do {
+                    let url = try await storageService.uploadFoodImage(image, userId: currentUID, listingId: listingId)
                     imageURLs.append(url)
-                } else {
+                } catch {
                     failedUploads += 1
                 }
             }
