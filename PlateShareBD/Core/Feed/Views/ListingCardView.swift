@@ -10,8 +10,6 @@ import SwiftUI
 struct ListingCardView: View {
     let listing: FoodListing
 
-    @State private var isPressed = false
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Image
@@ -108,20 +106,7 @@ struct ListingCardView: View {
         }
         .background(Color.psBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(
-            color: .black.opacity(isPressed ? 0.04 : 0.08),
-            radius: isPressed ? 4 : 10,
-            x: 0, y: isPressed ? 2 : 4
-        )
-        .scaleEffect(isPressed ? 0.97 : 1.0)
-        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isPressed)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    if !isPressed { isPressed = true }
-                }
-                .onEnded { _ in isPressed = false }
-        )
+        .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(listing.title) by \(listing.donorName), \(listing.quantity), pickup at \(listing.pickupAddress)")
         .contextMenu {

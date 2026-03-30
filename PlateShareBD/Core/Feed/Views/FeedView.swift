@@ -30,7 +30,7 @@ struct FeedView: View {
                                 NavigationLink(destination: ListingMapDetailView(listing: listing, currentUserId: authViewModel.currentUser?.id)) {
                                     ListingCardView(listing: listing)
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(FeedCardButtonStyle())
                                 .opacity(appeared ? 1 : 0)
                                 .offset(y: appeared || reduceMotion ? 0 : 24)
                                 .animation(
@@ -126,6 +126,17 @@ struct FeedView: View {
         }
         .padding(.top, 80)
         .padding(.horizontal, 40)
+    }
+}
+
+// ButtonStyle that scales the card on press without interfering with ScrollView scroll gestures.
+// DragGesture(minimumDistance:0) was previously causing the scroll to be blocked.
+private struct FeedCardButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .shadow(color: .black.opacity(configuration.isPressed ? 0.04 : 0), radius: 0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
