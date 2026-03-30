@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseCore
+import FirebaseAppCheck
 import FirebaseMessaging
 import UserNotifications
 
@@ -16,7 +17,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        FirebaseApp.configure()                         // MUST be first line
+        // App Check must be configured BEFORE FirebaseApp.configure().
+        // Debug provider works on Simulator and real devices in DEBUG builds.
+        // Release builds use DeviceCheck automatically via the default provider.
+        #if DEBUG
+        let appCheckFactory = AppCheckDebugProviderFactory()
+        AppCheck.setAppCheckProviderFactory(appCheckFactory)
+        #endif
+
+        FirebaseApp.configure()
         setupMessaging(application)
         return true
     }
