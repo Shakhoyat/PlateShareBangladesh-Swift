@@ -5,6 +5,7 @@
 
 import SwiftUI
 import MapKit
+import UIKit
 
 struct ListingMapDetailView: View {
     let listing: FoodListing
@@ -15,6 +16,7 @@ struct ListingMapDetailView: View {
     @State private var isShowingChat = false
     @State private var conversation: PSConversation?
     @State private var isLoadingChat = false
+    @State private var isReserving = false
     @State private var chatError: String?
     @State private var donor: PSUser?
     @Environment(\.dismiss) private var dismiss
@@ -166,30 +168,75 @@ struct ListingMapDetailView: View {
 
                     // Action buttons
                     VStack(spacing: 10) {
-                        Button {
-                            PSHaptics.light()
-                            openInMaps()
-                        } label: {
-                            Label("Get Directions", systemImage: "arrow.triangle.turn.up.right.circle.fill")
-                                .font(.subheadline.weight(.semibold))
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .background(Color(.systemGray6))
-                                .foregroundStyle(Color.psTextPrimary)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        // Reserve — primary CTA for non-owner, available, not-yet-expired
+                        if !isOwnListing && listing.isAvailable && !listing.expiresAt.isExpired {
+                            PSButton("Reserve This Food", isLoading: isReserving) {
+                                Task { await reserveListing() }
+                            }
+                            .accessibilityLabel("Reserve \(listing.title)")
                         }
 
-                        if !isOwnListing && listing.isAvailable {
-                            if let error = chatError {
-                                Text(error)
-                                    .font(.caption)
-                                    .foregroundStyle(Color.psError)
-                                    .multilineTextAlignment(.center)
+                        // Secondary row: Directions + Message
+                        HStack(spacing: 10) {
+                            Button {
+                                PSHaptics.light()
+                                openInMaps()
+                            } label: {
+                                Label("Directions", systemImage: "arrow.triangle.turn.up.right.circle.fill")
+                                    .font(.subheadline.weight(.semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(minHeight: 44)
+                                    .background(Color(.systemGray6))
+                                    .foregroundStyle(Color.psTextPrimary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
-                            PSButton("Message Donor", isLoading: isLoadingChat) {
-                                Task { await startChat() }
+
+                            if !isOwnListing && listing.isAvailable {
+                                Button {
+                                    PSHaptics.medium()
+                                    Task { await startChat() }
+                                } label: {
+                                    Group {
+                                        if isLoadingChat {
+                                            ProgressView().tint(.white)
+                                        } else {
+                                            Label("Message", systemImage: "message.fill")
+                                                .font(.subheadline.weight(.semibold))
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .frame(minHeight: 44)
+                                    .background(Color.psAccent)
+                                    .foregroundStyle(.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                                .disabled(isLoadingChat)
+                                .accessibilityLabel("Message \(listing.donorName)")
                             }
-                            .accessibilityLabel("Message \(listing.donorName)")
+                        }
+
+                        // Call — only visible if donor opted in with phoneNumber
+                        if !isOwnListing, let phone = donor?.phoneNumber {
+                            Button {
+                                PSHaptics.medium()
+                                callDonor(phone: phone)
+                            } label: {
+                                Label("Call Donor", systemImage: "phone.fill")
+                                    .font(.subheadline.weight(.semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(minHeight: 44)
+                                    .background(Color(.systemGray6))
+                                    .foregroundStyle(Color.psTextPrimary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+                            .accessibilityLabel("Call \(listing.donorName)")
+                        }
+
+                        if let error = chatError {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundStyle(Color.psError)
+                                .multilineTextAlignment(.center)
                         }
                     }
                 }
@@ -260,5 +307,38 @@ struct ListingMapDetailView: View {
             self.chatError = "Could not open chat. Please try again."
         }
         isLoadingChat = false
+    }
+
+    /// Reserve: opens chat and sends a pre-composed reservation message.
+    /// No new Firestore field needed — conversation creation is the reservation signal.
+    private func reserveListing() async {
+        guard let currentUID = currentUserId else { return }
+        isReserving = true
+        chatError = nil
+        do {
+            let conv = try await FirestoreService.shared.getOrCreateConversation(
+                listingId: listing.id,
+                donorId: listing.donorId,
+                recipientId: currentUID
+            )
+            try await FirestoreService.shared.sendMessage(
+                conversationId: conv.id,
+                text: "Hi! I'd like to reserve this food. Is it still available?"
+            )
+            self.conversation = conv
+            PSHaptics.success()
+            self.isShowingChat = true
+        } catch {
+            self.chatError = "Could not send reservation. Please try again."
+        }
+        isReserving = false
+    }
+
+    private func callDonor(phone: String) {
+        let cleaned = phone.filter { $0.isNumber || $0 == "+" }
+        guard let url = URL(string: "tel://\(cleaned)") else { return }
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url)
+        }
     }
 }

@@ -6,7 +6,12 @@
       "Bash(mkdir -p \"D:\\\\Dev Work\\\\PlateShareBangladesh-Swift\\\\.claude\\\\skills\")",
       "Bash(cp -r /tmp/apple-skills/skills/. \"D:\\\\Dev Work\\\\PlateShareBangladesh-Swift\\\\.claude\\\\skills/\")",
       "Bash(grep -v \"^d.*\\\\.$\")",
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(xargs grep:*)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "claude-flow"
+  ]
 }

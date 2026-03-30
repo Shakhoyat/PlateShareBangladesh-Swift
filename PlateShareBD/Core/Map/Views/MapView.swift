@@ -41,7 +41,22 @@ struct MapView: View {
                         ) {
                             ListingMapPin(listing: listing)
                                 .onTapGesture {
-                                    selectedListing = listing
+                                    PSHaptics.selection()
+                                    let coord = CLLocationCoordinate2D(
+                                        latitude: listing.latitude,
+                                        longitude: listing.longitude
+                                    )
+                                    withAnimation(.easeInOut(duration: 0.6)) {
+                                        cameraPosition = .region(
+                                            MKCoordinateRegion(
+                                                center: coord,
+                                                span: MKCoordinateSpan(latitudeDelta: 0.012, longitudeDelta: 0.012)
+                                            )
+                                        )
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        selectedListing = listing
+                                    }
                                 }
                         }
                     }
@@ -107,7 +122,8 @@ struct MapView: View {
                         .navigationTitle(listing.title)
                         .navigationBarTitleDisplayMode(.inline)
                 }
-                .presentationDetents([.large])
+                .presentationDetents([.medium, .large])
+                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
                 .presentationDragIndicator(.visible)
             }
             .onAppear {

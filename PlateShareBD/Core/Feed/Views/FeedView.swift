@@ -15,52 +15,52 @@ struct FeedView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        // Category filter chips
-                        categoryFilterBar
-                            .padding(.vertical, 12)
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Category filter chips
+                    categoryFilterBar
+                        .padding(.vertical, 12)
 
-                        // Listings grid
-                        if viewModel.filteredListings.isEmpty && !viewModel.isLoading {
-                            emptyStateView
-                        } else {
-                            LazyVStack(spacing: 16) {
-                                ForEach(Array(viewModel.filteredListings.enumerated()), id: \.element.id) { index, listing in
-                                    NavigationLink(destination: ListingMapDetailView(listing: listing, currentUserId: authViewModel.currentUser?.id)) {
-                                        ListingCardView(listing: listing)
-                                    }
-                                    .buttonStyle(.plain)
-                                    .opacity(appeared ? 1 : 0)
-                                    .offset(y: appeared || reduceMotion ? 0 : 24)
-                                    .animation(
-                                        reduceMotion ? .linear(duration: 0.1) :
-                                            .spring(response: 0.5, dampingFraction: 0.7)
-                                            .delay(Double(min(index, 6)) * 0.05),
-                                        value: appeared
-                                    )
+                    // Listings grid
+                    if viewModel.filteredListings.isEmpty && !viewModel.isLoading {
+                        emptyStateView
+                    } else {
+                        LazyVStack(spacing: 16) {
+                            ForEach(Array(viewModel.filteredListings.enumerated()), id: \.element.id) { index, listing in
+                                NavigationLink(destination: ListingMapDetailView(listing: listing, currentUserId: authViewModel.currentUser?.id)) {
+                                    ListingCardView(listing: listing)
                                 }
-
-                                if viewModel.isLoading {
-                                    ProgressView()
-                                        .padding(.vertical, 20)
-                                }
+                                .buttonStyle(.plain)
+                                .opacity(appeared ? 1 : 0)
+                                .offset(y: appeared || reduceMotion ? 0 : 24)
+                                .animation(
+                                    reduceMotion ? .linear(duration: 0.1) :
+                                        .spring(response: 0.5, dampingFraction: 0.7)
+                                        .delay(Double(min(index, 6)) * 0.05),
+                                    value: appeared
+                                )
                             }
-                            .padding(.horizontal, 16)
+
+                            if viewModel.isLoading {
+                                ProgressView()
+                                    .padding(.vertical, 20)
+                            }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 16)
                     }
                 }
-                .refreshable {
-                    PSHaptics.medium()
-                    await viewModel.refresh()
-                }
-                .onAppear {
-                    guard !appeared else { return }
-                    withAnimation { appeared = true }
-                }
-
-                // Error banner overlays at top
+            }
+            .refreshable {
+                PSHaptics.medium()
+                await viewModel.refresh()
+            }
+            .onAppear {
+                guard !appeared else { return }
+                withAnimation { appeared = true }
+            }
+            // Error banner floats over scroll content without blocking NavigationStack insets
+            .overlay(alignment: .top) {
                 if viewModel.errorMessage != nil {
                     ErrorBannerView(
                         message: viewModel.errorMessage ?? "",

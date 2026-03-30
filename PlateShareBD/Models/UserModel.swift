@@ -13,6 +13,7 @@ struct PSUser: Codable, Identifiable {
     var email: String
     var area: String                  // mohalla/para
     var profileImageURL: String?
+    var phoneNumber: String?            // nil unless donor explicitly opts in to share
     var isVerified: Bool
     var donorRating: Double           // 0.0 - 5.0
     var totalDonations: Int

@@ -20,6 +20,9 @@ struct PlateShareBDApp: App {
                 .environmentObject(authViewModel)
                 .environmentObject(languageManager)
                 .environment(\.locale, languageManager.locale)
+                .task {
+                    await SeedDataService.shared.seedIfNeeded()
+                }
         }
     }
 }

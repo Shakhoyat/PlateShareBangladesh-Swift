@@ -9,8 +9,8 @@ import Foundation
 
 enum AppConstants {
     enum Location {
-        static let defaultLatitude = 23.8103   // Dhaka, Bangladesh
-        static let defaultLongitude = 90.4125
+        static let defaultLatitude = 22.8998   // KUET, Khulna, Bangladesh
+        static let defaultLongitude = 89.5022
         // Geographic center of Bangladesh — used for country-wide map views
         static let bangladeshCenterLatitude = 23.6850
         static let bangladeshCenterLongitude = 90.3563
@@ -58,5 +58,6 @@ enum AppConstants {
     enum UserDefaultsKeys {
         static let preferredLanguageKey = "preferredLanguage"
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
+        static let hasSeededDemoData = "hasSeededDemoData_v1"
     }
 }
