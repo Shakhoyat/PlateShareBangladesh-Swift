@@ -22,3 +22,5 @@ GoogleService-Info.plist
 *.ipa
 *.dSYM.zip
 *.dSYM
+*.claude
+CLAUDE.md

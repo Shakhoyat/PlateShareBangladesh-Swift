@@ -99,7 +99,7 @@ struct MapView: View {
                         .padding(.bottom, 8)
                 }
             }
-            .navigationTitle("Nearby Food")
+            .navigationTitle("map.title")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $selectedListing) { listing in
                 ListingDetailView(listing: listing, currentUserId: authViewModel.currentUser?.id)
@@ -181,7 +181,7 @@ struct MapSearchBar: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
 
-                TextField("Search area (e.g. Motijheel)", text: $text)
+                TextField("map.search_placeholder", text: $text)
                     .textFieldStyle(.plain)
                     .submitLabel(.search)
                     .onSubmit { onSearch() }

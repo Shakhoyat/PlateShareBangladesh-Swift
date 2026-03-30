@@ -98,9 +98,10 @@ final class AuthViewModel: ObservableObject {
         errorMessage = nil
 
         do {
+            // Image upload is best-effort — profile is created even if it fails
             var profileImageURL: String? = nil
             if let image = profileImage {
-                profileImageURL = try await StorageService.shared.uploadProfileImage(image, userId: uid)
+                profileImageURL = try? await StorageService.shared.uploadProfileImage(image, userId: uid)
             }
 
             let user = PSUser(
@@ -109,7 +110,7 @@ final class AuthViewModel: ObservableObject {
                 email: email,
                 area: area,
                 profileImageURL: profileImageURL,
-                isVerified: true,
+                isVerified: false,
                 donorRating: 0.0,
                 totalDonations: 0,
                 fcmToken: nil,
@@ -121,7 +122,7 @@ final class AuthViewModel: ObservableObject {
             self.currentUser = user
             self.authState = .authenticated
         } catch {
-            errorMessage = "Failed to create profile: \(error.localizedDescription)"
+            errorMessage = error.localizedDescription
         }
         isLoading = false
     }

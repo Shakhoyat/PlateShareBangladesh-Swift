@@ -38,11 +38,11 @@ final class CreateListingViewModel: ObservableObject {
             errorMessage = "You must be logged in to create a listing."
             return
         }
-
         guard isFormValid else {
             errorMessage = "Please fill in all required fields."
             return
         }
+        guard !isLoading else { return }
 
         isLoading = true
         errorMessage = nil
@@ -50,11 +50,16 @@ final class CreateListingViewModel: ObservableObject {
         do {
             let listingId = UUID().uuidString
 
-            // Upload images
+            // Fetch user FIRST — fail fast before spending time on uploads
+            let user = try await firestoreService.fetchUser(uid: currentUID)
+
+            // Upload images — individual failures are non-fatal; listing is
+            // still created without those photos rather than aborting entirely.
             var imageURLs: [String] = []
             for image in selectedImages {
-                let url = try await storageService.uploadFoodImage(image, userId: currentUID, listingId: listingId)
-                imageURLs.append(url)
+                if let url = try? await storageService.uploadFoodImage(image, userId: currentUID, listingId: listingId) {
+                    imageURLs.append(url)
+                }
             }
 
             // Use selected location or fall back to current/default
@@ -62,9 +67,6 @@ final class CreateListingViewModel: ObservableObject {
                 : (locationService.currentLocation?.coordinate.latitude ?? AppConstants.Location.defaultLatitude)
             let longitude = pickupLongitude != 0 ? pickupLongitude
                 : (locationService.currentLocation?.coordinate.longitude ?? AppConstants.Location.defaultLongitude)
-
-            // Fetch current user name
-            let user = try await firestoreService.fetchUser(uid: currentUID)
 
             let listing = FoodListing(
                 id: listingId,
@@ -94,7 +96,7 @@ final class CreateListingViewModel: ObservableObject {
             isSuccess = true
             resetForm()
         } catch {
-            errorMessage = "Failed to create listing: \(error.localizedDescription)"
+            errorMessage = error.localizedDescription
         }
         isLoading = false
     }

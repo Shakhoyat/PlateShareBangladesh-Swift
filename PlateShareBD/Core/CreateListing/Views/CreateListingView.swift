@@ -22,7 +22,7 @@ struct CreateListingView: View {
 
                     // Photo Picker Section
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Food Photos")
+                        Text("create.photos")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color.psTextPrimary)
 
@@ -38,7 +38,7 @@ struct CreateListingView: View {
                                         VStack(spacing: 6) {
                                             Image(systemName: "camera.fill")
                                                 .font(.title2)
-                                            Text("Add Photo")
+                                            Text("create.add_photo")
                                                 .font(.caption2)
                                         }
                                         .foregroundStyle(Color.psAccent)
@@ -77,11 +77,11 @@ struct CreateListingView: View {
 
                     // Title
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Food Title *")
+                        Text("create.food_title")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(Color.psTextSecondary)
                         PSTextField(
-                            placeholder: "e.g., Wedding Biryani - Fresh & Hot",
+                            placeholder: "create.title_placeholder",
                             text: $viewModel.title,
                             icon: "fork.knife"
                         )
@@ -89,7 +89,7 @@ struct CreateListingView: View {
 
                     // Category Picker
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Category")
+                        Text("create.category")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(Color.psTextSecondary)
 
@@ -118,7 +118,7 @@ struct CreateListingView: View {
 
                     // Description
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Description (optional)")
+                        Text("create.description")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(Color.psTextSecondary)
                         TextEditor(text: $viewModel.description)
@@ -134,11 +134,11 @@ struct CreateListingView: View {
 
                     // Quantity
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Quantity *")
+                        Text("create.quantity")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(Color.psTextSecondary)
                         PSTextField(
-                            placeholder: "e.g., Serves 10 people",
+                            placeholder: "create.quantity_placeholder",
                             text: $viewModel.quantity,
                             icon: "person.2.fill"
                         )
@@ -146,7 +146,7 @@ struct CreateListingView: View {
 
                     // Pickup Address — map pin selector
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Pickup Address *")
+                        Text("create.pickup_address")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(Color.psTextSecondary)
 
@@ -158,7 +158,7 @@ struct CreateListingView: View {
                                     .foregroundStyle(Color.psTextSecondary)
                                     .frame(width: 20)
                                 Text(viewModel.pickupAddress.isEmpty
-                                     ? "Tap to select on map"
+                                     ? String(localized: "location_picker.tap_to_select")
                                      : viewModel.pickupAddress)
                                     .font(.body)
                                     .foregroundStyle(viewModel.pickupAddress.isEmpty ? Color.psTextSecondary : Color.psTextPrimary)
@@ -184,7 +184,7 @@ struct CreateListingView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "checkmark.seal.fill")
                                     .foregroundStyle(Color.psAccent)
-                                Text("Halal")
+                                Text("create.halal")
                                     .font(.subheadline.weight(.medium))
                             }
                         }
@@ -193,7 +193,7 @@ struct CreateListingView: View {
 
                     // Expiry
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Available for (hours)")
+                        Text("create.hours")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(Color.psTextSecondary)
 
@@ -206,7 +206,7 @@ struct CreateListingView: View {
                     }
 
                     // Submit
-                    PSButton("Share Food", isLoading: viewModel.isLoading) {
+                    PSButton(String(localized: "create.submit"), isLoading: viewModel.isLoading) {
                         Task { await viewModel.createListing() }
                     }
                     .disabled(!viewModel.isFormValid)
@@ -244,10 +244,10 @@ struct CreateListingView: View {
                     showSuccessAlert = true
                 }
             }
-            .alert("Food Shared!", isPresented: $showSuccessAlert) {
-                Button("OK") { dismiss() }
+            .alert(String(localized: "create.success_title"), isPresented: $showSuccessAlert) {
+                Button("common.ok") { dismiss() }
             } message: {
-                Text("Your food listing is now live! People nearby can see it and message you for pickup.")
+                Text("create.success_message")
             }
             .sheet(isPresented: $showLocationPicker) {
                 LocationPickerView(

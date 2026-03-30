@@ -15,6 +15,7 @@ struct ListingDetailView: View {
     @State private var conversation: PSConversation?
     @State private var isLoadingChat = false
     @State private var chatError: String?
+    @State private var donor: PSUser?
     @Environment(\.dismiss) private var dismiss
 
     var isOwnListing: Bool {
@@ -97,7 +98,7 @@ struct ListingDetailView: View {
                     // Description
                     if let description = listing.description, !description.isEmpty {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Description")
+                            Text("listing.description")
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(Color.psTextPrimary)
                             Text(description)
@@ -108,20 +109,26 @@ struct ListingDetailView: View {
 
                     // Donor section
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Shared by")
+                        Text("listing.shared_by")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color.psTextPrimary)
 
                         HStack(spacing: 12) {
-                            PSAvatarView(imageURL: nil, size: 44, showBadge: true)
+                            PSAvatarView(
+                                imageURL: donor?.profileImageURL,
+                                size: 44,
+                                showBadge: donor?.isVerified ?? false
+                            )
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(listing.donorName)
                                     .font(.subheadline.weight(.medium))
                                     .foregroundStyle(Color.psTextPrimary)
-                                Text("Verified Donor")
-                                    .font(.caption)
-                                    .foregroundStyle(Color.psAccent)
+                                if donor?.isVerified == true {
+                                    Text("listing.verified_donor")
+                                        .font(.caption)
+                                        .foregroundStyle(Color.psAccent)
+                                }
                             }
 
                             Spacer()
@@ -132,7 +139,7 @@ struct ListingDetailView: View {
 
                     // Pickup Location
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Pickup Location")
+                        Text("listing.pickup_location")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color.psTextPrimary)
 
@@ -202,6 +209,9 @@ struct ListingDetailView: View {
                 .background(.ultraThinMaterial)
             }
         }
+        .task {
+            donor = try? await FirestoreService.shared.fetchUser(uid: listing.donorId)
+        }
         .sheet(isPresented: $isShowingChat) {
             if let conversation = conversation {
                 NavigationStack {
@@ -238,7 +248,7 @@ struct ListingDetailView: View {
                 Image(systemName: "fork.knife")
                     .font(.system(size: 40))
                     .foregroundStyle(Color.psTextSecondary.opacity(0.3))
-                Text("No photo available")
+                Text("listing.no_photo_available")
                     .font(.caption)
                     .foregroundStyle(Color.psTextSecondary.opacity(0.5))
             }
