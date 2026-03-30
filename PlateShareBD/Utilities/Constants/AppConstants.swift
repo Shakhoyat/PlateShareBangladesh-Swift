@@ -36,8 +36,18 @@ enum AppConstants {
     // 2. Dashboard → Settings → Upload → Add upload preset → set to "Unsigned"
     // 3. Paste your Cloud Name and the preset name below
     enum Cloudinary {
-        static let cloudName   = "plateshare-bd"    // e.g. "plateshare-bd"
-        static let uploadPreset = "Unsigned" // unsigned preset name
+        static let cloudName   = "dkim6e0jo"
+        static let uploadPreset = "plateshare-bd"
+
+        #if DEBUG
+        static func validate() {
+            assert(
+                cloudName != "plateshare-bd-placeholder" &&
+                !cloudName.isEmpty,
+                "❌ Cloudinary cloudName not configured"
+            )
+        }
+        #endif
     }
 
     enum Languages {
