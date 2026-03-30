@@ -10,7 +10,6 @@ import SwiftUI
 struct MainTabView: View {
     @State private var selectedTab = 0
     @State private var showCreateListing = false
-    @State private var fabPressed = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -26,7 +25,7 @@ struct MainTabView: View {
                 }
                 .tag(1)
 
-            // Placeholder tab for center FAB — immediately redirects
+            // Center tab — tapping immediately opens the create sheet
             Color.clear
                 .tabItem {
                     Label("tab.share", systemImage: "plus.circle.fill")
@@ -54,48 +53,6 @@ struct MainTabView: View {
             } else {
                 PSHaptics.selection()
             }
-        }
-        // FAB sits above the tab bar, respecting safe area on all iPhone models
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            HStack {
-                Spacer()
-                Button {
-                    PSHaptics.medium()
-                    showCreateListing = true
-                } label: {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [.psAccent, .psAccentDark],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 56, height: 56)
-                            .shadow(
-                                color: .psAccent.opacity(fabPressed ? 0.2 : 0.4),
-                                radius: fabPressed ? 4 : 10,
-                                x: 0, y: fabPressed ? 2 : 5
-                            )
-                        Image(systemName: "plus")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(Color.white)
-                    }
-                    .scaleEffect(fabPressed ? 0.92 : 1.0)
-                    .animation(.spring(response: 0.25, dampingFraction: 0.6), value: fabPressed)
-                }
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { _ in if !fabPressed { fabPressed = true } }
-                        .onEnded { _ in fabPressed = false }
-                )
-                .accessibilityLabel("Share food listing")
-                Spacer()
-            }
-            // Sit just above the tab bar height (~49pt) without overlapping home indicator
-            .padding(.bottom, 58)
-            .allowsHitTesting(true)
         }
         .sheet(isPresented: $showCreateListing) {
             CreateListingView()

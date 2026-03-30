@@ -28,7 +28,7 @@ struct FeedView: View {
                         } else {
                             LazyVStack(spacing: 16) {
                                 ForEach(Array(viewModel.filteredListings.enumerated()), id: \.element.id) { index, listing in
-                                    NavigationLink(destination: ListingDetailView(listing: listing, currentUserId: authViewModel.currentUser?.id)) {
+                                    NavigationLink(destination: ListingMapDetailView(listing: listing, currentUserId: authViewModel.currentUser?.id)) {
                                         ListingCardView(listing: listing)
                                     }
                                     .buttonStyle(.plain)

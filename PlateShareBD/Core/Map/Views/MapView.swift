@@ -102,8 +102,13 @@ struct MapView: View {
             .navigationTitle("map.title")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $selectedListing) { listing in
-                ListingDetailView(listing: listing, currentUserId: authViewModel.currentUser?.id)
-                    .presentationDetents([.medium, .large])
+                NavigationStack {
+                    ListingMapDetailView(listing: listing, currentUserId: authViewModel.currentUser?.id)
+                        .navigationTitle(listing.title)
+                        .navigationBarTitleDisplayMode(.inline)
+                }
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
             }
             .onAppear {
                 viewModel.requestLocationAndLoad()

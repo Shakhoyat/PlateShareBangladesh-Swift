@@ -23,3 +23,4 @@ Pods/
 *.dSYM
 *.claude
 CLAUDE.md
+*.claude-flow

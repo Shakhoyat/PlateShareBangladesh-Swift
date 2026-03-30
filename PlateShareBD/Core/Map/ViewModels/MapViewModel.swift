@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import MapKit
 import Combine
 import FirebaseFirestore
 
@@ -25,7 +26,6 @@ final class MapViewModel: ObservableObject {
     @Published var isSearching = false
 
     private let locationService = LocationService.shared
-    private let geocoder = CLGeocoder()
     private var cancellables = Set<AnyCancellable>()
     private var listingsListener: ListenerRegistration?
 
@@ -80,6 +80,15 @@ final class MapViewModel: ObservableObject {
         locationService.startUpdating()
     }
 
+    // Bangladesh region used to bias MKLocalSearch results
+    private static let bangladeshRegion = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(
+            latitude: AppConstants.Location.bangladeshCenterLatitude,
+            longitude: AppConstants.Location.bangladeshCenterLongitude
+        ),
+        span: MKCoordinateSpan(latitudeDelta: 5.5, longitudeDelta: 5.5)
+    )
+
     // Search for an area name and re-center
     func searchArea() {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -90,26 +99,24 @@ final class MapViewModel: ObservableObject {
 
         isSearching = true
         errorMessage = nil
-        geocoder.cancelGeocode()
 
-        // Bias results toward Bangladesh
-        let bdRegion = CLCircularRegion(
-            center: CLLocationCoordinate2D(latitude: AppConstants.Location.defaultLatitude,
-                                           longitude: AppConstants.Location.defaultLongitude),
-            radius: 300_000, // ~300 km covers all of Bangladesh
-            identifier: "BD"
-        )
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = query + " Bangladesh"
+        request.region = Self.bangladeshRegion
 
-        geocoder.geocodeAddressString(query, in: bdRegion) { [weak self] placemarks, error in
-            DispatchQueue.main.async {
-                self?.isSearching = false
-                if let coord = placemarks?.first?.location?.coordinate {
-                    self?.searchCenter = coord
-                    self?.filterByRadius()
+        Task {
+            do {
+                let response = try await MKLocalSearch(request: request).start()
+                if let coord = response.mapItems.first?.placemark.coordinate {
+                    searchCenter = coord
+                    filterByRadius()
                 } else {
-                    self?.errorMessage = "Could not find \"\(query)\""
+                    errorMessage = "Could not find \"\(query)\""
                 }
+            } catch {
+                errorMessage = "Could not find \"\(query)\""
             }
+            isSearching = false
         }
     }
 
