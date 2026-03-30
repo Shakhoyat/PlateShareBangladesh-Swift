@@ -59,7 +59,7 @@ struct LocationPickerView: View {
                 Map(position: $cameraPosition, interactionModes: .all) {
                     UserAnnotation()
                 }
-                .mapStyle(.standard(elevation: .realistic, pointsOfInterest: .including([.food, .landmark, .publicTransport])))
+                .mapStyle(.standard(elevation: .realistic, pointsOfInterest: .including([.restaurant, .cafe, .bakery, .landmark, .publicTransport])))
                 .mapControls {
                     MapUserLocationButton()
                     MapCompass()
