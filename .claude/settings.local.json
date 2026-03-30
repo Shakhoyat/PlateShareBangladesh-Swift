@@ -7,7 +7,12 @@
       "Bash(cp -r /tmp/apple-skills/skills/. \"D:\\\\Dev Work\\\\PlateShareBangladesh-Swift\\\\.claude\\\\skills/\")",
       "Bash(grep -v \"^d.*\\\\.$\")",
       "Bash(xargs ls:*)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(gh repo:*)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(findstr /s /n \"23\\\\.8\\\\|90\\\\.4\\\\|23\\\\.7\\\\|90\\\\.3\" *.swift)",
+      "Bash(findstr /s /n \"defaultLatitude\\\\|defaultLongitude\\\\|defaultRegion\\\\|initialRegion\\\\|CLLocationCoordinate2D\" *.swift)"
     ]
   },
   "enableAllProjectMcpServers": true,
