@@ -12,15 +12,7 @@ struct MapView: View {
     @StateObject var viewModel = MapViewModel()
     @EnvironmentObject var authViewModel: AuthViewModel
     @State private var selectedListing: FoodListing?
-    @State private var cameraPosition: MapCameraPosition = .region(
-        MKCoordinateRegion(
-            center: CLLocationCoordinate2D(
-                latitude: AppConstants.Location.defaultLatitude,
-                longitude: AppConstants.Location.defaultLongitude
-            ),
-            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-        )
-    )
+    @State private var cameraPosition: MapCameraPosition = .region(AppConstants.Location.kuetRegion)
 
     var body: some View {
         NavigationStack {
@@ -128,18 +120,6 @@ struct MapView: View {
             }
             .onAppear {
                 viewModel.requestLocationAndLoad()
-            }
-            .onChange(of: viewModel.userLocation?.latitude) { _, _ in
-                if viewModel.searchCenter == nil, let loc = viewModel.userLocation {
-                    withAnimation {
-                        cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: loc,
-                                span: spanForRadius(viewModel.selectedRadiusKM)
-                            )
-                        )
-                    }
-                }
             }
             .onChange(of: viewModel.searchCenter?.latitude) { _, _ in
                 if let center = viewModel.searchCenter {

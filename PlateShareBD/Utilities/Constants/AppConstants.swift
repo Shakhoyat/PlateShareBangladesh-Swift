@@ -6,12 +6,21 @@
 //
 
 import Foundation
+import MapKit
 
 enum AppConstants {
     enum Location {
-        static let defaultLatitude = 22.8998   // KUET, Khulna, Bangladesh
-        static let defaultLongitude = 89.5022
-        // Geographic center of Bangladesh — used for country-wide map views
+        // KUET, Khulna — single source of truth for default map center
+        static let kuetLatitude: CLLocationDegrees = 22.8998
+        static let kuetLongitude: CLLocationDegrees = 89.5022
+        static let kuetRegion = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 22.8998, longitude: 89.5022),
+            latitudinalMeters: 3000, longitudinalMeters: 3000
+        )
+        // Legacy aliases — point to the same KUET values
+        static let defaultLatitude = kuetLatitude
+        static let defaultLongitude = kuetLongitude
+        // Geographic center of Bangladesh — used for country-wide MKLocalSearch bias
         static let bangladeshCenterLatitude = 23.6850
         static let bangladeshCenterLongitude = 90.3563
         static let defaultRadiusKM: Double = 2.0
