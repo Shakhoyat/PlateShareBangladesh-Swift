@@ -67,7 +67,13 @@ struct MapView: View {
                         text: $viewModel.searchText,
                         isSearching: viewModel.isSearching,
                         onSearch: {
-                            viewModel.searchArea()
+                            // Pass live camera region so MKLocalSearch biases results
+                            // to the area currently visible, not a fixed national bbox.
+                            if case .region(let r) = cameraPosition {
+                                viewModel.searchArea(in: r)
+                            } else {
+                                viewModel.searchArea()
+                            }
                         },
                         onClear: {
                             viewModel.clearSearch()
@@ -134,15 +140,13 @@ struct MapView: View {
                 }
             }
             .onChange(of: viewModel.selectedRadiusKM) { _, newRadius in
-                if let center = viewModel.filterCenter {
-                    withAnimation {
-                        cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: center,
-                                span: spanForRadius(newRadius)
-                            )
+                withAnimation {
+                    cameraPosition = .region(
+                        MKCoordinateRegion(
+                            center: viewModel.filterCenter,
+                            span: spanForRadius(newRadius)
                         )
-                    }
+                    )
                 }
             }
         }

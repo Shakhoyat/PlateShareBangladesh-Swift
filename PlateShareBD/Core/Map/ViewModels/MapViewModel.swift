@@ -28,10 +28,15 @@ final class MapViewModel: ObservableObject {
     private let locationService = LocationService.shared
     private var cancellables = Set<AnyCancellable>()
     private var listingsListener: ListenerRegistration?
+    private var searchTask: Task<Void, Never>?
 
-    /// The effective center for radius filtering — search result or user location
-    var filterCenter: CLLocationCoordinate2D? {
-        searchCenter ?? userLocation
+    /// Effective center for radius filtering: search result → user location → KUET default.
+    /// Non-optional so seed listings around KUET are always visible before GPS resolves.
+    var filterCenter: CLLocationCoordinate2D {
+        searchCenter ?? userLocation ?? CLLocationCoordinate2D(
+            latitude: AppConstants.Location.kuetLatitude,
+            longitude: AppConstants.Location.kuetLongitude
+        )
     }
 
     init() {
@@ -73,6 +78,7 @@ final class MapViewModel: ObservableObject {
 
     deinit {
         listingsListener?.remove()
+        searchTask?.cancel()
     }
 
     func requestLocationAndLoad() {
@@ -89,24 +95,37 @@ final class MapViewModel: ObservableObject {
         span: MKCoordinateSpan(latitudeDelta: 5.5, longitudeDelta: 5.5)
     )
 
-    // Search for an area name and re-center
-    func searchArea() {
+    /// Search for an area name and re-center the map.
+    /// - Parameter currentRegion: The live camera region from MapView used as locality bias.
+    ///   Falls back to the Bangladesh-wide region when nil.
+    /// 300 ms debounce cancels any in-flight request before starting a new one.
+    func searchArea(in currentRegion: MKCoordinateRegion? = nil) {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
             clearSearch()
             return
         }
 
+        searchTask?.cancel()
         isSearching = true
         errorMessage = nil
 
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = query + " Bangladesh"
-        request.region = Self.bangladeshRegion
+        let searchRegion = currentRegion ?? Self.bangladeshRegion
 
-        Task {
+        searchTask = Task {
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            guard !Task.isCancelled else {
+                isSearching = false
+                return
+            }
+
+            let request = MKLocalSearch.Request()
+            request.naturalLanguageQuery = query + " Bangladesh"
+            request.region = searchRegion
+
             do {
                 let response = try await MKLocalSearch(request: request).start()
+                guard !Task.isCancelled else { return }
                 if let coord = response.mapItems.first?.placemark.coordinate {
                     searchCenter = coord
                     filterByRadius()
@@ -114,6 +133,7 @@ final class MapViewModel: ObservableObject {
                     errorMessage = "Could not find \"\(query)\""
                 }
             } catch {
+                guard !Task.isCancelled else { return }
                 errorMessage = "Could not find \"\(query)\""
             }
             isSearching = false
@@ -121,6 +141,7 @@ final class MapViewModel: ObservableObject {
     }
 
     func clearSearch() {
+        searchTask?.cancel()
         searchText = ""
         searchCenter = nil
         errorMessage = nil
@@ -128,10 +149,7 @@ final class MapViewModel: ObservableObject {
     }
 
     private func filterByRadius() {
-        guard let center = filterCenter else {
-            filteredListings = listings
-            return
-        }
+        let center = filterCenter
         let radiusMeters = selectedRadiusKM * 1000
         filteredListings = listings.filter { listing in
             let listingLocation = CLLocation(latitude: listing.latitude, longitude: listing.longitude)
