@@ -24,22 +24,25 @@ struct ListingCardView: View {
                             image
                                 .resizable()
                                 .scaledToFill()
+                                .frame(maxWidth: .infinity, minHeight: 180, maxHeight: 180)
+                                .clipped()
                         case .failure:
                             foodPlaceholder
+                                .frame(maxWidth: .infinity, minHeight: 180, maxHeight: 180)
                         case .empty:
                             ZStack {
                                 Color(.systemGray6)
                                 ProgressView()
                             }
+                            .frame(maxWidth: .infinity, minHeight: 180, maxHeight: 180)
                         @unknown default:
                             foodPlaceholder
+                                .frame(maxWidth: .infinity, minHeight: 180, maxHeight: 180)
                         }
                     }
-                    .frame(height: 180)
-                    .clipped()
                 } else {
                     foodPlaceholder
-                        .frame(height: 180)
+                        .frame(maxWidth: .infinity, minHeight: 180, maxHeight: 180)
                 }
 
                 // Category badge

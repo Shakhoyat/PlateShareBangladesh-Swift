@@ -289,14 +289,14 @@ struct MyListingRow: View {
 
             Spacer()
 
-            if listing.isAvailable {
-                Menu {
+            Menu {
+                if listing.isAvailable {
                     Button("Mark as Taken", action: onMarkTaken)
-                    Button("Delete", role: .destructive, action: onDelete)
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .foregroundStyle(Color.psTextSecondary)
                 }
+                Button("Delete", role: .destructive, action: onDelete)
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .foregroundStyle(Color.psTextSecondary)
             }
         }
         .padding(12)

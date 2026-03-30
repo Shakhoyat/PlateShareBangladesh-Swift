@@ -121,15 +121,25 @@ struct CreateListingView: View {
                         Text("create.description")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(Color.psTextSecondary)
-                        TextEditor(text: $viewModel.description)
-                            .frame(height: 80)
-                            .padding(8)
-                            .background(Color(.systemGray6))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color(.systemGray4), lineWidth: 1)
-                            )
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: $viewModel.description)
+                                .frame(height: 80)
+                            if viewModel.description.isEmpty {
+                                Text("create.title_placeholder")
+                                    .font(.body)
+                                    .foregroundStyle(Color(.placeholderText))
+                                    .padding(.top, 8)
+                                    .padding(.leading, 4)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(.systemGray4), lineWidth: 1)
+                        )
                     }
 
                     // Quantity
@@ -191,18 +201,29 @@ struct CreateListingView: View {
                         .tint(.psAccent)
                     }
 
-                    // Expiry
+                    // Expiry — chip row instead of segmented (6 items too cramped on SE)
                     VStack(alignment: .leading, spacing: 6) {
                         Text("create.hours")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(Color.psTextSecondary)
 
-                        Picker("Expiry", selection: $viewModel.expiryHours) {
-                            ForEach([2, 4, 6, 8, 12, 24], id: \.self) { hours in
-                                Text("\(hours) hours").tag(hours)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach([2, 4, 6, 8, 12, 24], id: \.self) { hours in
+                                    Button {
+                                        viewModel.expiryHours = hours
+                                    } label: {
+                                        Text("\(hours)h")
+                                            .font(.caption.weight(.semibold))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 8)
+                                            .background(viewModel.expiryHours == hours ? Color.psAccent : Color(.systemGray6))
+                                            .foregroundStyle(viewModel.expiryHours == hours ? Color.white : Color.psTextPrimary)
+                                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                                    }
+                                }
                             }
                         }
-                        .pickerStyle(.segmented)
                     }
 
                     // Submit
@@ -211,6 +232,21 @@ struct CreateListingView: View {
                     }
                     .disabled(!viewModel.isFormValid)
                     .padding(.top, 8)
+
+                    // Upload warning (non-fatal: listing saved but photos missing)
+                    if let warning = viewModel.imageUploadWarning {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(Color.psWarning)
+                            Text(warning)
+                                .font(.caption)
+                                .foregroundStyle(Color.psWarning)
+                                .multilineTextAlignment(.leading)
+                        }
+                        .padding(12)
+                        .background(Color.psWarning.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
 
                     // Error
                     if let error = viewModel.errorMessage {

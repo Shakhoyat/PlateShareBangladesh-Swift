@@ -56,11 +56,7 @@ struct FeedView: View {
                     await viewModel.refresh()
                 }
                 .onAppear {
-                    appeared = false
-                    withAnimation { appeared = true }
-                }
-                .onChange(of: viewModel.listings.count) { _, _ in
-                    appeared = false
+                    guard !appeared else { return }
                     withAnimation { appeared = true }
                 }
 

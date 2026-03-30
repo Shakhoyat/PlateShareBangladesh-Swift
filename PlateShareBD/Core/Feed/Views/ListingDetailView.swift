@@ -29,6 +29,7 @@ struct ListingDetailView: View {
                 TabView {
                     if listing.imageURLs.isEmpty {
                         foodPlaceholder
+                            .frame(maxWidth: .infinity, minHeight: 280, maxHeight: 280)
                     } else {
                         ForEach(listing.imageURLs, id: \.self) { urlString in
                             if let url = URL(string: urlString) {
@@ -38,15 +39,20 @@ struct ListingDetailView: View {
                                         image
                                             .resizable()
                                             .scaledToFill()
+                                            .frame(maxWidth: .infinity, minHeight: 280, maxHeight: 280)
+                                            .clipped()
                                     case .failure:
                                         foodPlaceholder
+                                            .frame(maxWidth: .infinity, minHeight: 280, maxHeight: 280)
                                     case .empty:
                                         ZStack {
                                             Color(.systemGray6)
                                             ProgressView()
                                         }
+                                        .frame(maxWidth: .infinity, minHeight: 280, maxHeight: 280)
                                     @unknown default:
                                         foodPlaceholder
+                                            .frame(maxWidth: .infinity, minHeight: 280, maxHeight: 280)
                                     }
                                 }
                             }
@@ -55,6 +61,7 @@ struct ListingDetailView: View {
                 }
                 .frame(height: 280)
                 .tabViewStyle(.page)
+                .clipped()
 
                 VStack(alignment: .leading, spacing: 16) {
                     // Title & Category
@@ -198,8 +205,8 @@ struct ListingDetailView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
                 .background(.ultraThinMaterial)
-            } else if !isOwnListing && !listing.isAvailable {
-                // Rate Donor button (listing already taken)
+            } else if !isOwnListing && !listing.isAvailable && currentUserId != nil {
+                // Rate Donor button — only shown when logged in
                 PSButton("Rate Donor") {
                     isShowingRating = true
                 }

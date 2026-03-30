@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
 import UIKit
 
 @MainActor
@@ -24,6 +25,7 @@ final class CreateListingViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isSuccess = false
+    @Published var imageUploadWarning: String?
 
     private let firestoreService = FirestoreService.shared
     private let storageService = StorageService.shared
@@ -46,20 +48,39 @@ final class CreateListingViewModel: ObservableObject {
 
         isLoading = true
         errorMessage = nil
+        imageUploadWarning = nil
 
         do {
             let listingId = UUID().uuidString
 
-            // Fetch user FIRST — fail fast before spending time on uploads
-            let user = try await firestoreService.fetchUser(uid: currentUID)
+            // Fetch user FIRST — fail fast before spending time on uploads.
+            // Fall back to Firebase Auth display name if profile doc is missing.
+            let donorName: String
+            do {
+                let user = try await firestoreService.fetchUser(uid: currentUID)
+                donorName = user.displayName
+            } catch {
+                donorName = Auth.auth().currentUser?.displayName ?? "Anonymous"
+            }
 
-            // Upload images — individual failures are non-fatal; listing is
-            // still created without those photos rather than aborting entirely.
+            // Upload images on a background thread to avoid freezing the UI.
+            // Individual failures are non-fatal — listing is created with whatever
+            // uploads succeeded, and a warning is shown for failures.
             var imageURLs: [String] = []
+            var failedUploads = 0
             for image in selectedImages {
-                if let url = try? await storageService.uploadFoodImage(image, userId: currentUID, listingId: listingId) {
+                if let url = try? await Task.detached(priority: .userInitiated) {
+                    try await self.storageService.uploadFoodImage(image, userId: currentUID, listingId: listingId)
+                }.value {
                     imageURLs.append(url)
+                } else {
+                    failedUploads += 1
                 }
+            }
+            if failedUploads > 0 {
+                imageUploadWarning = failedUploads == selectedImages.count
+                    ? "Photos couldn't be saved — check your Cloudinary setup."
+                    : "\(failedUploads) photo(s) failed to upload and won't appear on the listing."
             }
 
             // Use selected location or fall back to current/default
@@ -71,7 +92,7 @@ final class CreateListingViewModel: ObservableObject {
             let listing = FoodListing(
                 id: listingId,
                 donorId: currentUID,
-                donorName: user.displayName,
+                donorName: donorName,
                 title: title,
                 description: description.isEmpty ? nil : description,
                 category: category,
@@ -88,9 +109,9 @@ final class CreateListingViewModel: ObservableObject {
 
             try await firestoreService.createListing(listing)
 
-            // Update user's total donations
+            // Use FieldValue.increment to avoid read-then-write race condition
             try await firestoreService.updateUser(uid: currentUID, data: [
-                "totalDonations": (user.totalDonations + 1)
+                "totalDonations": FieldValue.increment(Int64(1))
             ])
 
             isSuccess = true

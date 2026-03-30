@@ -82,7 +82,7 @@ struct MapView: View {
                     }
 
                     // Listing count pill
-                    Text("\(viewModel.filteredListings.count) listing\(viewModel.filteredListings.count == 1 ? "" : "s") nearby")
+                    Text(String(format: NSLocalizedString("map.listings_count", comment: ""), viewModel.filteredListings.count))
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 12)

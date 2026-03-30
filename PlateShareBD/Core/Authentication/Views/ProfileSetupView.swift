@@ -106,13 +106,16 @@ struct ProfileSetupView: View {
                 PSButton("Complete Profile", isLoading: authViewModel.isLoading) {
                     Task {
                         await authViewModel.completeProfileSetup(
-                            displayName: displayName,
-                            area: area,
+                            displayName: displayName.trimmingCharacters(in: .whitespacesAndNewlines),
+                            area: area.trimmingCharacters(in: .whitespacesAndNewlines),
                             profileImage: profileImage
                         )
                     }
                 }
-                .disabled(displayName.isEmpty || area.isEmpty)
+                .disabled(
+                    displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+                    area.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                )
                 .padding(.top, 8)
 
                 // Error
